@@ -1,0 +1,7 @@
+/.vscode
+/.vs
+/.vsconfig
+/.editorconfig
+
+bin
+obj

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+	"7zFM2.Windows (Package)": {
+	  "commandName": "MsixPackage"
+	},
+	"7zFM2.Windows (Unpackaged)": {
+	  "commandName": "Project"
+	}
+  }
+}
