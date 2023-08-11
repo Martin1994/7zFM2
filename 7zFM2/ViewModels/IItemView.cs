@@ -1,4 +1,4 @@
-﻿namespace SevenZip.FileManager2.ViewModels;
+namespace SevenZip.FileManager2.ViewModels;
 
 public interface IItemView
 {

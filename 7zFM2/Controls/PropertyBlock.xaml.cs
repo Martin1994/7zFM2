@@ -1,4 +1,4 @@
-﻿namespace SevenZip.FileManager2.Controls;
+namespace SevenZip.FileManager2.Controls;
 
 public partial class PropertyBlock
 {

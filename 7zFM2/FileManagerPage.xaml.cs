@@ -42,7 +42,9 @@ public sealed partial class FileManagerPage : Page
 
     private void TestDataGrid()
     {
-        var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "7z2201-src.7z");
+        var path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            @"E:\Backups\Music.7z" :
+            @"/mnt/e/Backups/Music.7z";
         var stream = new FileStream(
             path,
             FileMode.Open, FileAccess.Read, FileShare.Read

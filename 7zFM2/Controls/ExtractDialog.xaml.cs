@@ -1,4 +1,4 @@
-﻿using SevenZip.FileManager2.ViewModels;
+using SevenZip.FileManager2.ViewModels;
 
 namespace SevenZip.FileManager2.Controls;
 
