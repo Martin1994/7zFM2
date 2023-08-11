@@ -1,4 +1,4 @@
-﻿namespace SevenZip.FileManager2.Business.Models;
+﻿namespace SevenZip.FileManager2.ViewModels;
 
 public class SevenZipItemView : IItemView
 {

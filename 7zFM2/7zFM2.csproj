@@ -53,14 +53,13 @@
 				<Compile Update="**\*.xaml.cs">
 					<DependentUpon>%(Filename)</DependentUpon>
 				</Compile>
-				<PRIResource Include ="**\*.resw" />
+				<PRIResource Include="**\*.resw" />
 			</ItemGroup>
 		</Otherwise>
 	</Choose>
 
 	<ItemGroup>
-		<UnoDspImportColors Include="Styles\*.zip"
-												Generator="Xaml" />
+		<UnoDspImportColors Include="Styles\*.zip" Generator="Xaml" />
 		<UnoImage Include="Assets\**\*.svg" />
 		<UpToDateCheckInput Include="**\*.xaml" Exclude="bin\**\*.xaml;obj\**\*.xaml" />
 	</ItemGroup>

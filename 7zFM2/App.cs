@@ -2,7 +2,7 @@ namespace SevenZip.FileManager2;
 
 public class App : Application
 {
-    protected Window? MainWindow { get; private set; }
+    public Window? MainWindow { get; private set; }
     protected IHost? Host { get; private set; }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -13,42 +13,42 @@ public class App : Application
             // Switch to Development environment when running in DEBUG
             .UseEnvironment(Environments.Development)
 #endif
-                .UseLogging(configure: (context, logBuilder) =>
-                {
-                    // Configure log levels for different categories of logging
-                    logBuilder
-                        .SetMinimumLevel(
-                            context.HostingEnvironment.IsDevelopment() ?
-                                LogLevel.Information :
-                                LogLevel.Warning)
+            .UseLogging(configure: (context, logBuilder) =>
+            {
+                // Configure log levels for different categories of logging
+                logBuilder
+                    .SetMinimumLevel(
+                        context.HostingEnvironment.IsDevelopment() ?
+                            LogLevel.Information :
+                            LogLevel.Warning)
 
-                        // Default filters for core Uno Platform namespaces
-                        .CoreLogLevel(LogLevel.Warning);
+                    // Default filters for core Uno Platform namespaces
+                    .CoreLogLevel(LogLevel.Warning);
 
-                    // Uno Platform namespace filter groups
-                    // Uncomment individual methods to see more detailed logging
-                    //// Generic Xaml events
-                    //logBuilder.XamlLogLevel(LogLevel.Debug);
-                    //// Layouter specific messages
-                    //logBuilder.XamlLayoutLogLevel(LogLevel.Debug);
-                    //// Storage messages
-                    //logBuilder.StorageLogLevel(LogLevel.Debug);
-                    //// Binding related messages
-                    //logBuilder.XamlBindingLogLevel(LogLevel.Debug);
-                    //// Binder memory references tracking
-                    //logBuilder.BinderMemoryReferenceLogLevel(LogLevel.Debug);
-                    //// RemoteControl and HotReload related
-                    //logBuilder.HotReloadCoreLogLevel(LogLevel.Information);
-                    //// Debug JS interop
-                    //logBuilder.WebAssemblyLogLevel(LogLevel.Debug);
+                // Uno Platform namespace filter groups
+                // Uncomment individual methods to see more detailed logging
+                //// Generic Xaml events
+                //logBuilder.XamlLogLevel(LogLevel.Debug);
+                //// Layouter specific messages
+                //logBuilder.XamlLayoutLogLevel(LogLevel.Debug);
+                //// Storage messages
+                //logBuilder.StorageLogLevel(LogLevel.Debug);
+                //// Binding related messages
+                //logBuilder.XamlBindingLogLevel(LogLevel.Debug);
+                //// Binder memory references tracking
+                //logBuilder.BinderMemoryReferenceLogLevel(LogLevel.Debug);
+                //// RemoteControl and HotReload related
+                //logBuilder.HotReloadCoreLogLevel(LogLevel.Information);
+                //// Debug JS interop
+                //logBuilder.WebAssemblyLogLevel(LogLevel.Debug);
 
-                }, enableUnoLogging: true)
-                .ConfigureServices((context, services) =>
-                {
-                    // TODO: Register your services
-                    //services.AddSingleton<IMyService, MyService>();
-                })
-            );
+            }, enableUnoLogging: true)
+            .ConfigureServices((context, services) =>
+            {
+                // TODO: Register your services
+                //services.AddSingleton<IMyService, MyService>();
+            })
+        );
         MainWindow = builder.Window;
 
         Host = builder.Build();

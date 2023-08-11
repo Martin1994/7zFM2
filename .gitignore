@@ -2,6 +2,7 @@
 /.vs
 /.vsconfig
 /.editorconfig
+*.csproj.user
 
 bin
 obj

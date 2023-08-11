@@ -1,6 +1,8 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Input;
-using SevenZip.FileManager2.Business.Models;
+using SevenZip.FileManager2.Controls;
+using SevenZip.FileManager2.ViewModels;
+using System.Runtime.InteropServices;
 
 namespace SevenZip.FileManager2;
 
@@ -40,11 +42,16 @@ public sealed partial class FileManagerPage : Page
 
     private void TestDataGrid()
     {
-        using var stream = new FileStream(
-            Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "7z2201-src.7z"),
+        var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "7z2201-src.7z");
+        var stream = new FileStream(
+            path,
             FileMode.Open, FileAccess.Read, FileShare.Read
         );
-        var arc = new SevenZipInArchive("7z2201-src.7z", stream);
+        var arc = new SevenZipInArchive(path, stream);
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            (Application.Current as App)!.MainWindow!.Title = $"{path} - 7-zip File Manager 2";
+        });
         ListNode(arc.ItemTree);
     }
 
@@ -108,42 +115,21 @@ public sealed partial class FileManagerPage : Page
         ListNode(selectedNode);
     }
 
-    class Callback : IArchiveExtractCallback
-    {
-        public Stream? GetStream(uint index, NAskMode askExtractMode)
-        {
-            return null;
-        }
-
-        public void PrepareOperation(NAskMode askExtractMode)
-        {
-        }
-
-        public void SetCompleted(in ulong size)
-        {
-        }
-
-        public void SetOperationResult(NOperationResult opRes)
-        {
-        }
-
-        public void SetTotal(ulong size)
-        {
-        }
-    }
-
     private async void OnTest(object sender, RoutedEventArgs e)
     {
         SevenZipItemNode currentNode = (SevenZipItemNode)_currentNode!;
-        var selectedNodes = ItemDataGrid.SelectedItems.Cast<IItemView>().Select(view => currentNode[view.Name]);
+        var selectedNodes = ItemDataGrid.SelectedItems.Count == 0 ?
+            new SevenZipItemNode[] { currentNode } :
+            ItemDataGrid.SelectedItems.Cast<IItemView>().Select(view => currentNode[view.Name]);
 
-        currentNode.Archive.Extract(selectedNodes, NAskMode.kTest, new Callback());
-        await new ContentDialog()
+        var extract = new ExtractDialog()
         {
-            Content = "Done.",
-            PrimaryButtonText = "OK",
-            XamlRoot = this.XamlRoot
-        }.ShowAsync();
+            ArchiveExtract = new ArchiveExtract(),
+            XamlRoot = XamlRoot
+        };
+
+        extract.ArchiveExtract.Extract(currentNode.Archive, selectedNodes);
+        await extract.ShowAsync();
     }
 
     private void OnExtract(object sender, RoutedEventArgs e)
@@ -151,7 +137,7 @@ public sealed partial class FileManagerPage : Page
         SevenZipItemNode currentNode = (SevenZipItemNode)_currentNode!;
         var selectedNodes = ItemDataGrid.SelectedItems.Cast<IItemView>().SelectMany(view => currentNode[view.Name].Traverse());
 
-        currentNode.Archive.Extract(selectedNodes, NAskMode.kExtract, null!);
+        //currentNode.Archive.Extract(selectedNodes, NAskMode.kExtract, null!);
     }
 
     private static T? FindParent<T>(DependencyObject child) where T : DependencyObject

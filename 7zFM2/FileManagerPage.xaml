@@ -3,14 +3,21 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:SevenZip.FileManager2"
-    xmlns:models="using:SevenZip.FileManager2.Business.Models"
+    xmlns:vm="using:SevenZip.FileManager2.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ct="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
 >
-    <ct:DockPanel>
-        <MenuBar ct:DockPanel.Dock="Top">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <MenuBar Grid.Row="0">
             <MenuBarItem Title="File" AccessKey="F">
                 <MenuFlyoutItem Text="Open">
                     <MenuFlyoutItem.KeyboardAccelerators>
@@ -35,8 +42,8 @@
             </MenuBarItem>
         </MenuBar>
 
-        <StackPanel
-            ct:DockPanel.Dock="Top" Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+        <StackPanel Grid.Row="1"
+            Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             Orientation="Horizontal"
         >
             <AppBarButton Icon="Add" Label="Add" IsEnabled="False" />
@@ -49,20 +56,23 @@
             <AppBarButton Icon="Important" Label="Info" />
         </StackPanel>
 
-        <ct:DockPanel ct:DockPanel.Dock="Top" Background="{StaticResource SolidBackgroundFillColorTertiary}">
-            <Button Style="{StaticResource NavigationBackButtonNormalStyle}" Click="{x:Bind OnReturn}"></Button>
-            <TextBox Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" />
-        </ct:DockPanel>
+        <Grid Grid.Row="2" Background="{StaticResource SolidBackgroundFillColorTertiary}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource NavigationBackButtonNormalStyle}" Click="{x:Bind OnReturn}"></Button>
+            <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" />
+        </Grid>
 
-        <ct:DockPanel ct:DockPanel.Dock="Bottom">
+        <StackPanel Grid.Row="4" Orientation="Horizontal">
             <TextBlock x:Name="SelectionStatus" MinWidth="200" Margin="20,5,20,5"></TextBlock>
             <AppBarSeparator />
             <TextBlock Margin="5"></TextBlock>
-        </ct:DockPanel>
+        </StackPanel>
 
-        <ct:DataGrid
+        <ct:DataGrid Grid.Row="3"
             x:Name="ItemDataGrid"
-            ct:DockPanel.Dock="Top"
             Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             AutoGenerateColumns="False"
             DoubleTapped="{x:Bind OnItemGridDoubleClick}"
@@ -79,7 +89,7 @@
                     MinWidth="120"
                 >
                     <ct:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="models:IItemView">
+                        <DataTemplate x:DataType="vm:IItemView">
                             <StackPanel Orientation="Horizontal">
                                 <SymbolIcon Symbol="{x:Bind Icon}" Margin="10,0,10,0" />
                                 <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
@@ -113,7 +123,7 @@
                     Header="Files"
                     Binding="{Binding Files}"
                 />
-           </ct:DataGrid.Columns>
+            </ct:DataGrid.Columns>
         </ct:DataGrid>
-    </ct:DockPanel>
+    </Grid>
 </Page>
