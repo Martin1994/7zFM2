@@ -35,8 +35,8 @@ public class SevenZipItemViewModel : IItemViewModel
                 children[i++] = new SevenZipItemViewModel(child);
             }
             fm.Items = children;
-            fm.TotalItems = children.Length;
             fm.ReturnAction = () => new SevenZipItemViewModel(_node.Parent).Open(fm);
+            fm.Name = _node.Name;
         }
     }
 

@@ -62,17 +62,16 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource NavigationBackButtonNormalStyle}" Command="{x:Bind _vm.ReturnCommand}"></Button>
-            <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" Text="{x:Bind _vm.Name, Mode=OneWay}" />
         </Grid>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <TextBlock x:Name="SelectionStatus" MinWidth="200" Margin="20,5,20,5"></TextBlock>
+            <TextBlock MinWidth="200" Margin="20,5,20,5" Text="{x:Bind _vm.SelectionStatus, Mode=OneWay}" />
             <AppBarSeparator />
-            <TextBlock Margin="5"></TextBlock>
+            <TextBlock Margin="5" />
         </StackPanel>
 
         <ct:DataGrid Grid.Row="3"
-            x:Name="_itemGrid"
             Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             AutoGenerateColumns="False"
             ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"

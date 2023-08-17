@@ -88,9 +88,7 @@ public class App : Application
     {
         var fm = new FileManagerViewModel();
 
-        var path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            @"E:\Backups\Music.7z" :
-            @"/mnt/e/Backups/Music.7z";
+        var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "7z2201-src.7z");
 
         MainWindow.Title = $"{path} - 7-zip File Manager 2";
 

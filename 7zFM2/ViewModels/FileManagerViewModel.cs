@@ -3,9 +3,6 @@ namespace SevenZip.FileManager2.ViewModels;
 public partial class FileManagerViewModel : ObservableObject
 {
     [ObservableProperty]
-    private int _totalItems;
-
-    [ObservableProperty]
     private IItemViewModel[] _items = Array.Empty<IItemViewModel>();
 
     [ObservableProperty]
@@ -20,6 +17,9 @@ public partial class FileManagerViewModel : ObservableObject
 
     [ObservableProperty]
     private IReadOnlyList<IItemViewModel> _selectedItems = Array.Empty<IItemViewModel>();
+
+    [ObservableProperty]
+    private string _name = "";
 
     public delegate void ExtractEventHandler(ArchiveExtractViewModel vm);
     public event ExtractEventHandler? ExtractStarted;
