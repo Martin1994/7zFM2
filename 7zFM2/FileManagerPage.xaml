@@ -76,6 +76,7 @@
             AutoGenerateColumns="False"
             ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
             SelectionChanged="{x:Bind OnSelectionChanged}"
+            DoubleTapped="{x:Bind _vm.Open}"
         >
             <ct:DataGrid.CellStyle>
                 <Style TargetType="ct:DataGridCell">
