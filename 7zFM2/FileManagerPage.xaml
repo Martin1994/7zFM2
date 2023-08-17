@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
         <MenuBar Grid.Row="0">
             <MenuBarItem Title="File" AccessKey="F">
-                <MenuFlyoutItem Text="Open">
+                <MenuFlyoutItem Text="Open" Command="{x:Bind _vm.OpenCommand}">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Enter"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -48,12 +48,12 @@
         >
             <AppBarButton Icon="Add" Label="Add" IsEnabled="False" />
             <AppBarSeparator />
-            <AppBarButton Icon="OpenLocal" Label="Extract" Click="{x:Bind OnExtract}" />
-            <AppBarButton Icon="Accept" Label="Test" Click="{x:Bind OnTest}" />
+            <AppBarButton Icon="OpenLocal" Label="Extract" IsEnabled="False" />
+            <AppBarButton Icon="Accept" Label="Test" Command="{x:Bind _vm.TestCommand}" />
             <AppBarButton Icon="Copy" Label="Copy" IsEnabled="False" />
             <AppBarButton Icon="MoveToFolder" Label="Move" IsEnabled="False" />
             <AppBarButton Icon="Delete" Label="Delete" IsEnabled="False" />
-            <AppBarButton Icon="Important" Label="Info" />
+            <AppBarButton Icon="Important" Label="Info" IsEnabled="False" />
         </StackPanel>
 
         <Grid Grid.Row="2" Background="{StaticResource SolidBackgroundFillColorTertiary}">
@@ -61,7 +61,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Style="{StaticResource NavigationBackButtonNormalStyle}" Click="{x:Bind OnReturn}"></Button>
+            <Button Grid.Column="0" Style="{StaticResource NavigationBackButtonNormalStyle}" Command="{x:Bind _vm.ReturnCommand}"></Button>
             <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" />
         </Grid>
 
@@ -72,10 +72,11 @@
         </StackPanel>
 
         <ct:DataGrid Grid.Row="3"
-            x:Name="ItemDataGrid"
+            x:Name="_itemGrid"
             Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             AutoGenerateColumns="False"
-            DoubleTapped="{x:Bind OnItemGridDoubleClick}"
+            ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
+            SelectionChanged="{x:Bind OnSelectionChanged}"
         >
             <ct:DataGrid.CellStyle>
                 <Style TargetType="ct:DataGridCell">
@@ -83,13 +84,14 @@
                     <Setter Property="FontSize" Value="14"/>
                 </Style>
             </ct:DataGrid.CellStyle>
+
             <ct:DataGrid.Columns>
                 <ct:DataGridTemplateColumn
                     Header="Name"
                     MinWidth="120"
                 >
                     <ct:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:IItemView">
+                        <DataTemplate x:DataType="vm:IItemViewModel">
                             <StackPanel Orientation="Horizontal">
                                 <SymbolIcon Symbol="{x:Bind Icon}" Margin="10,0,10,0" />
                                 <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
@@ -99,7 +101,6 @@
                 </ct:DataGridTemplateColumn>
                 <ct:DataGridTextColumn
                     Header="Size"
-                    Width="SizeToHeader"
                     Binding="{Binding Size}"
                 />
                 <ct:DataGridTextColumn

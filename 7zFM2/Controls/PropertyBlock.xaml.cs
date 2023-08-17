@@ -1,3 +1,5 @@
+using SevenZip.FileManager2.Formats;
+
 namespace SevenZip.FileManager2.Controls;
 
 public partial class PropertyBlock
@@ -24,7 +26,7 @@ public partial class PropertyBlock
     {
         set
         {
-            _valueBlock.Text = value.ToString("n0");
+            _valueBlock.Text = value.ToString("N0");
         }
     }
 
@@ -32,26 +34,13 @@ public partial class PropertyBlock
     {
         set
         {
-            _valueBlock.Text = FormatSize(value);
+            _valueBlock.Text = SizeFormatter.FromBytes(value);
         }
     }
 
     public PropertyBlock()
     {
         InitializeComponent();
-    }
-
-    private static readonly string[] SIZE_UNITS = new[] { "bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
-    private static string FormatSize(ulong bytes)
-    {
-        string unit = SIZE_UNITS[0];
-        double magnitude = bytes;
-        for (int i = 0; i < SIZE_UNITS.Length - 1 && magnitude >= 1024; i++)
-        {
-            magnitude /= 1024;
-            unit = SIZE_UNITS[i + 1];
-        }
-        return $"{magnitude:0.##} {unit}";
     }
 }
 

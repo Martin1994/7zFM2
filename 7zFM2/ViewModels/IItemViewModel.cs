@@ -1,6 +1,6 @@
 namespace SevenZip.FileManager2.ViewModels;
 
-public interface IItemView
+public interface IItemViewModel
 {
     Symbol Icon { get; }
     string Name { get; }
@@ -10,4 +10,6 @@ public interface IItemView
     string Comment { get; }
     string Folders { get; }
     string Files { get; }
+
+    void Open(FileManagerViewModel fm);
 }

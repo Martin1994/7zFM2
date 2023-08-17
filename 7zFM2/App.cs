@@ -1,9 +1,13 @@
+using SevenZip.FileManager2.ViewModels;
+using System.Runtime.InteropServices;
+
 namespace SevenZip.FileManager2;
 
 public class App : Application
 {
-    public Window? MainWindow { get; private set; }
-    protected IHost? Host { get; private set; }
+    public static new App Current => (Application.Current as App)!;
+    public static Window MainWindow { get; private set; } = null!;
+    public IHost Host { get; private set; } = null!;
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -43,11 +47,8 @@ public class App : Application
                 //logBuilder.WebAssemblyLogLevel(LogLevel.Debug);
 
             }, enableUnoLogging: true)
-            .ConfigureServices((context, services) =>
-            {
-                // TODO: Register your services
-                //services.AddSingleton<IMyService, MyService>();
-            })
+
+            .ConfigureServices(ConfigureServices)
         );
         MainWindow = builder.Window;
 
@@ -76,6 +77,33 @@ public class App : Application
 
         // Ensure the current window is active
         MainWindow.Activate();
+    }
+
+    protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    {
+        services.AddScoped(ProvideItemTree);
+    }
+
+    protected virtual FileManagerViewModel ProvideItemTree(IServiceProvider provider)
+    {
+        var fm = new FileManagerViewModel();
+
+        var path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            @"E:\Backups\Music.7z" :
+            @"/mnt/e/Backups/Music.7z";
+
+        MainWindow.Title = $"{path} - 7-zip File Manager 2";
+
+        var stream = new FileStream(
+            path,
+            FileMode.Open, FileAccess.Read, FileShare.Read
+        );
+
+        var arc = new SevenZipInArchive(path, stream);
+
+        new SevenZipItemViewModel(arc.RootNode).Open(fm);
+
+        return fm;
     }
 
     protected virtual void InitializeWindow()

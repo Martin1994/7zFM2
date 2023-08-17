@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace SevenZip.FileManager2.ViewModels;
 
-public partial class ArchiveExtract : ObservableObject
+public partial class ArchiveExtractViewModel : ObservableObject
 {
     private static readonly TimeSpan UI_REFRESH_RATE = TimeSpan.FromMilliseconds(100);
 
@@ -85,7 +85,7 @@ class RateControlledSetter<T>
 
 file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressInfo
 {
-    private readonly ArchiveExtract _vm;
+    private readonly ArchiveExtractViewModel _vm;
     private readonly SevenZipInArchive _archive;
     private readonly DispatcherQueue _dispatcherQueue = DispatcherQueue.GetForCurrentThread() ?? throw new InvalidOperationException("ArchiveExtractCallback must be constructed in a UI thread.");
 
@@ -102,7 +102,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
 
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-    public ArchiveExtractCallback(ArchiveExtract vm, SevenZipInArchive archive, TimeSpan refreshInterval)
+    public ArchiveExtractCallback(ArchiveExtractViewModel vm, SevenZipInArchive archive, TimeSpan refreshInterval)
     {
         _vm = vm;
         _archive = archive;
@@ -180,6 +180,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
 
     public Stream? GetStream(uint index, NAskMode askExtractMode)
     {
+        // TODO: exclude directories
         _items++;
         _currentId = index;
         Flush(false);
