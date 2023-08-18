@@ -3,7 +3,7 @@ namespace SevenZip.FileManager2.Formats;
 public class SizeFormatter
 {
     private static readonly string[] SIZE_UNITS = new[] { "bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
-    public static string FromBytes(ulong bytes)
+    public static string FromBytes(double bytes)
     {
         string unit = SIZE_UNITS[0];
         double magnitude = bytes;
@@ -12,6 +12,6 @@ public class SizeFormatter
             magnitude /= 1024;
             unit = SIZE_UNITS[i + 1];
         }
-        return $"{magnitude:0.##} {unit}";
+        return $"{magnitude:0.#} {unit}";
     }
 }

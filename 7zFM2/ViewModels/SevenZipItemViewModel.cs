@@ -28,16 +28,47 @@ public class SevenZipItemViewModel : IItemViewModel
     {
         if (_node.Type == SevenZipItemType.Directory)
         {
-            IItemViewModel[] children = new IItemViewModel[_node.ChildrenCount];
+            var children = new IItemViewModel[_node.ChildrenCount];
             int i = 0;
             foreach (var child in _node.Children)
             {
                 children[i++] = new SevenZipItemViewModel(child);
             }
             fm.Items = children;
-            fm.ReturnAction = () => new SevenZipItemViewModel(_node.Parent).Open(fm);
-            fm.Name = _node.Name;
+
+            if (_node.IsRoot)
+            {
+                var archiveFileName = ((FileStream)_node.Archive.Stream).Name;
+                var parentDir = new FileInfo(archiveFileName).Directory;
+                if (parentDir == null)
+                {
+                    fm.ReturnAction = () => { };
+                }
+                else
+                {
+                    fm.ReturnAction = () => new SystemDirectoryViewModel(parentDir).Open(fm);
+                }
+                
+            }
+            else
+            {
+                fm.ReturnAction = () => new SevenZipItemViewModel(_node.Parent).Open(fm);
+            }
+
+            List<string> pathComponent = new();
+            for (var node = _node; !node.IsRoot; node = node.Parent)
+            {
+                pathComponent.Add(node.Name);
+            }
+            pathComponent.Add(((FileStream)_node.Archive.Stream).Name);
+            pathComponent.Reverse();
+
+            fm.Name = PathFormatter.AddTrailingSlash(Path.Join(pathComponent.ToArray()));
+
+            return;
         }
+
+        // TODO: xdg-open
     }
 
     private static string FormatDateTime(DateTime date)

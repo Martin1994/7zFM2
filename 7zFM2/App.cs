@@ -88,18 +88,9 @@ public class App : Application
     {
         var fm = new FileManagerViewModel();
 
-        var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "7z2201-src.7z");
+        MainWindow.Title = "7-zip File Manager 2";
 
-        MainWindow.Title = $"{path} - 7-zip File Manager 2";
-
-        var stream = new FileStream(
-            path,
-            FileMode.Open, FileAccess.Read, FileShare.Read
-        );
-
-        var arc = new SevenZipInArchive(path, stream);
-
-        new SevenZipItemViewModel(arc.RootNode).Open(fm);
+        new SystemDirectoryViewModel(new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))).Open(fm);
 
         return fm;
     }
