@@ -31,6 +31,11 @@ public sealed partial class FileManagerPage : Page
             XamlRoot = XamlRoot
         }.ShowAsync();
     }
+
+    private void OnLoadingRow(object sender, DataGridRowEventArgs e)
+    {
+        e.Row.DoubleTapped += (sender, e) => _vm.Open();
+    }
 }
 
 file class CastedList<T> : IReadOnlyList<T>

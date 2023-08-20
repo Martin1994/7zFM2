@@ -76,8 +76,14 @@
             AutoGenerateColumns="False"
             ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
             SelectionChanged="{x:Bind OnSelectionChanged}"
-            DoubleTapped="{x:Bind _vm.Open}"
+            LoadingRow="{x:Bind OnLoadingRow}"
         >
+            <ct:DataGrid.RowStyle>
+                <Style TargetType="ct:DataGridRow">
+                    <Setter Property="IsDoubleTapEnabled" Value="True"/>
+                </Style>
+            </ct:DataGrid.RowStyle>
+
             <ct:DataGrid.CellStyle>
                 <Style TargetType="ct:DataGridCell">
                     <Setter Property="IsHitTestVisible" Value="False"/>
