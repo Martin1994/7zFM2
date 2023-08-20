@@ -9,6 +9,8 @@ public class SystemDriveViewModel : IItemViewModel
 
     public string Name => Environment.MachineName;
 
+    public bool IsDirectory => true;
+
     public string Size => "";
 
     public string Modified => "";

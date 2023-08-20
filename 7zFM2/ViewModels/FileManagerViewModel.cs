@@ -24,6 +24,28 @@ public partial class FileManagerViewModel : ObservableObject
     public delegate void ExtractEventHandler(ArchiveExtractViewModel vm);
     public event ExtractEventHandler? ExtractStarted;
 
+    partial void OnItemsChanging(IItemViewModel[] value)
+    {
+        Array.Sort(value, SortItems);
+    }
+
+    private int SortItems(IItemViewModel lhs, IItemViewModel rhs)
+    {
+        if (lhs.IsDirectory == rhs.IsDirectory)
+        {
+            return NaturalStringComparer.CurrentCulture.Compare(lhs.Name, rhs.Name);
+        }
+
+        if (lhs.IsDirectory)
+        {
+            return -1;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+
     partial void OnItemsChanged(IItemViewModel[] value)
     {
         UpdateSelectionStatus();

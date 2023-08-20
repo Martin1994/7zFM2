@@ -4,6 +4,7 @@ public interface IItemViewModel
 {
     Symbol Icon { get; }
     string Name { get; }
+    bool IsDirectory { get; }
     string Size { get; }
     string Modified { get; }
     string Created { get; }

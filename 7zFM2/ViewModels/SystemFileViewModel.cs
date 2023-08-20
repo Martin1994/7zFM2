@@ -15,6 +15,8 @@ public class SystemFileViewModel : IItemViewModel
 
     public string Name => _info.Name;
 
+    public bool IsDirectory => false;
+
     public string Size => SizeFormatter.FromBytes(_info.Length);
 
     public string Modified => _info.LastWriteTime.ToString();

@@ -12,11 +12,19 @@ public class SevenZipItemViewModel : IItemViewModel
     public Symbol Icon => _node.Type == SevenZipItemType.File ? Symbol.Document : Symbol.Folder;
 
     public string Name => _node.Name;
+
+    public bool IsDirectory => _node.Type == SevenZipItemType.Directory;
+
     public string Size => _node.HasDetail ? SizeFormatter.FromBytes(_node.Detail.Size) : "";
+
     public string Modified => _node.HasDetail ? FormatDateTime(_node.Detail.ModifiedTime) : "";
+
     public string Created => _node.HasDetail ? FormatDateTime(_node.Detail.CreatedTime) : "";
+
     public string Comment => _node.HasDetail ? _node.Detail.Comment ?? "" : "";
+
     public string Folders => _node.Type == SevenZipItemType.Directory ? _node.Directories.ToString("N0") : "";
+
     public string Files => _node.Type == SevenZipItemType.Directory ? _node.Files.ToString("N0") : "";
 
     public SevenZipItemViewModel(SevenZipItemNode node)

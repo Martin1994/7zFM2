@@ -15,6 +15,8 @@ public class SystemDirectoryViewModel : IItemViewModel
 
     public string Name => _info.Name;
 
+    public bool IsDirectory => true;
+
     public string Size => "";
 
     public string Modified => _info.LastWriteTime.ToString();
