@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33617.297
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Windows", "7zFM2.Windows\7zFM2.Windows.csproj", "{7B336B3B-D77A-4568-B66B-53C2C947E27C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Skia.Gtk", "7zFM2.Skia.Gtk\7zFM2.Skia.Gtk.csproj", "{BB04213C-B0D1-4A72-A224-6410286EB5D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7zFM2.Mobile", "7zFM2.Mobile\7zFM2.Mobile.csproj", "{A4C24EDA-2F2D-4A8E-A067-588E6A752301}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +97,22 @@ Global
 		{BB04213C-B0D1-4A72-A224-6410286EB5D6}.Release|x64.Build.0 = Release|Any CPU
 		{BB04213C-B0D1-4A72-A224-6410286EB5D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{BB04213C-B0D1-4A72-A224-6410286EB5D6}.Release|x86.Build.0 = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|arm64.Build.0 = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|arm64.ActiveCfg = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|arm64.Build.0 = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x64.Build.0 = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
