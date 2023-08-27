@@ -101,7 +101,7 @@ public partial class FileManagerViewModel : ObservableObject
         var selectedNodes = SelectedItems.Cast<SevenZipItemViewModel>().Select(vm => vm.Node);
 
         var extract = new ArchiveExtractViewModel();
-        extract.Extract(archive, selectedNodes);
+        extract.Extract(archive, selectedNodes.ToArray());
 
         if (ExtractStarted != null)
         {
