@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace SevenZip.FileManager2.ViewModels;
 
 public partial class FileManagerViewModel : ObservableObject
@@ -29,11 +31,21 @@ public partial class FileManagerViewModel : ObservableObject
         Array.Sort(value, SortItems);
     }
 
+    [DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
+    public static extern int StrCmpLogicalW(string lhs, string rhs); // Should only be used on Windows
+
     private int SortItems(IItemViewModel lhs, IItemViewModel rhs)
     {
         if (lhs.IsDirectory == rhs.IsDirectory)
         {
-            return NaturalStringComparer.CurrentCulture.Compare(lhs.Name, rhs.Name);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return StrCmpLogicalW(lhs.Name, rhs.Name);
+            }
+            else
+            {
+                return NaturalStringComparer.CurrentCulture.Compare(lhs.Name, rhs.Name);
+            }
         }
 
         if (lhs.IsDirectory)
