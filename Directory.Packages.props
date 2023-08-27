@@ -2,6 +2,9 @@
   <ItemGroup>
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.0" />
     <PackageVersion Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+    <PackageVersion Include="Communitytoolkit.Labs.WinUI.Controls.DataTable" Version="0.1.230826" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.230801-preview" />
+    <PackageVersion Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-preview.3.23174.8" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.3.230502000" />

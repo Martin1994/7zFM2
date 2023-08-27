@@ -6,7 +6,9 @@
     xmlns:vm="using:SevenZip.FileManager2.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ct="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:labs="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d"
 >
     <Grid>
@@ -62,7 +64,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource NavigationBackButtonNormalStyle}" Command="{x:Bind _vm.ReturnCommand}"></Button>
-            <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" Text="{x:Bind _vm.Name, Mode=OneWay}" />
+            <TextBox Grid.Column="1" Margin="0,0,10,0" TextWrapping="NoWrap" VerticalAlignment="Center" FontSize="13" Text="{x:Bind _vm.Name, Mode=OneWay}" />
         </Grid>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal">
@@ -71,66 +73,73 @@
             <TextBlock Margin="5" />
         </StackPanel>
 
-        <ct:DataGrid Grid.Row="3"
-            Background="{StaticResource SolidBackgroundFillColorTertiary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-            AutoGenerateColumns="False"
+        <ListView Grid.Row="3"
             ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
+            SelectionMode="Extended"
+            Background="{StaticResource SolidBackgroundFillColorTertiary}"
+            VerticalAlignment="Stretch"
+            SelectedItem="{x:Bind _vm.SelectedItem, Mode=TwoWay}"
             SelectionChanged="{x:Bind OnSelectionChanged}"
-            LoadingRow="{x:Bind OnLoadingRow}"
+            DoubleTapped="{x:Bind OnDoubleTapItem}"
         >
-            <ct:DataGrid.RowStyle>
-                <Style TargetType="ct:DataGridRow">
-                    <Setter Property="IsDoubleTapEnabled" Value="True"/>
-                </Style>
-            </ct:DataGrid.RowStyle>
+            <ListView.Header>
+                <Border Padding="14,4,0,4" Background="{ThemeResource SolidBackgroundFillColorQuarternary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
 
-            <ct:DataGrid.CellStyle>
-                <Style TargetType="ct:DataGridCell">
-                    <Setter Property="IsHitTestVisible" Value="False"/>
-                    <Setter Property="FontSize" Value="14"/>
-                </Style>
-            </ct:DataGrid.CellStyle>
+                    <interactivity:Interaction.Behaviors>
+                        <behaviors:StickyHeaderBehavior />
+                    </interactivity:Interaction.Behaviors>
 
-            <ct:DataGrid.Columns>
-                <ct:DataGridTemplateColumn
-                    Header="Name"
-                    MinWidth="120"
-                >
-                    <ct:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:IItemViewModel">
-                            <StackPanel Orientation="Horizontal">
-                                <SymbolIcon Symbol="{x:Bind Icon}" Margin="10,0,10,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ct:DataGridTemplateColumn.CellTemplate>
-                </ct:DataGridTemplateColumn>
-                <ct:DataGridTextColumn
-                    Header="Size"
-                    Binding="{Binding Size}"
-                />
-                <ct:DataGridTextColumn
-                    Header="Modified"
-                    Binding="{Binding Modified}"
-                />
-                <ct:DataGridTextColumn
-                    Header="Created"
-                    Binding="{Binding Created}"
-                />
-                <ct:DataGridTextColumn
-                    Header="Comment"
-                    Width="SizeToHeader"
-                    Binding="{Binding Comment}"
-                />
-                <ct:DataGridTextColumn
-                    Header="Folders"
-                    Binding="{Binding Folders}"
-                />
-                <ct:DataGridTextColumn
-                    Header="Files"
-                    Binding="{Binding Files}"
-                />
-            </ct:DataGrid.Columns>
-        </ct:DataGrid>
+                    <labs:DataTable>
+                        <labs:DataTable.Resources>
+                            <Style TargetType="labs:DataColumn">
+                                <Setter Property="CanResize" Value="True" />
+                                <Setter Property="FontSize" Value="12" />
+                            </Style>
+                        </labs:DataTable.Resources>
+
+                        <labs:DataColumn MinWidth="120">Name</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Size</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Modified</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Created</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Comment</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Folders</labs:DataColumn>
+                        <labs:DataColumn MinWidth="120">Files</labs:DataColumn>
+                    </labs:DataTable>
+                </Border>
+            </ListView.Header>
+
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:IItemViewModel">
+                    <labs:DataRow HorizontalAlignment="Left">
+
+                        <labs:DataRow.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Padding" Value="0,0,12,0" />
+                                <Setter Property="FontSize" Value="13" />
+                            </Style>
+                        </labs:DataRow.Resources>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="{x:Bind Icon}" Margin="0,0,10,0" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
+                        </StackPanel>
+
+                        <TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{x:Bind Size}" />
+
+                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Modified}" />
+
+                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Created}" />
+
+                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Comment}" />
+
+                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Folders}" />
+
+                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Files}" />
+
+                    </labs:DataRow>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
     </Grid>
 </Page>
