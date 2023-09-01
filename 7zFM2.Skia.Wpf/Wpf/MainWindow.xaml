@@ -6,7 +6,7 @@
 		xmlns:local="clr-namespace:SevenZip.FileManager2.Skia.Wpf"
 		mc:Ignorable="d"
 		Title="MainWindow"
-		Height="600"
-		Width="800" >
+		Height="800"
+		Width="1200" >
 	<ContentControl x:Name="root" />
 </Window>

@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Windows", "7zFM2.Wind
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Skia.Gtk", "7zFM2.Skia.Gtk\7zFM2.Skia.Gtk.csproj", "{BB04213C-B0D1-4A72-A224-6410286EB5D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7zFM2.Mobile", "7zFM2.Mobile\7zFM2.Mobile.csproj", "{A4C24EDA-2F2D-4A8E-A067-588E6A752301}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Mobile", "7zFM2.Mobile\7zFM2.Mobile.csproj", "{A4C24EDA-2F2D-4A8E-A067-588E6A752301}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Skia.Wpf", "7zFM2.Skia.Wpf\7zFM2.Skia.Wpf.csproj", "{621BAB41-952E-4981-8330-C55ECAD71FBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,22 @@ Global
 		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x64.Build.0 = Release|Any CPU
 		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x86.ActiveCfg = Release|Any CPU
 		{A4C24EDA-2F2D-4A8E-A067-588E6A752301}.Release|x86.Build.0 = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|arm64.Build.0 = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|x64.Build.0 = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Debug|x86.Build.0 = Debug|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|arm64.ActiveCfg = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|arm64.Build.0 = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|x64.ActiveCfg = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|x64.Build.0 = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|x86.ActiveCfg = Release|Any CPU
+		{621BAB41-952E-4981-8330-C55ECAD71FBB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
