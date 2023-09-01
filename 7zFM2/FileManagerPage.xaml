@@ -6,8 +6,6 @@
     xmlns:vm="using:SevenZip.FileManager2.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:labs="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d"
 >
@@ -73,73 +71,78 @@
             <TextBlock Margin="5" />
         </StackPanel>
 
-        <ListView Grid.Row="3"
-            ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
-            SelectionMode="Extended"
-            Background="{StaticResource SolidBackgroundFillColorTertiary}"
-            VerticalAlignment="Stretch"
-            SelectedItem="{x:Bind _vm.SelectedItem, Mode=TwoWay}"
-            SelectionChanged="{x:Bind OnSelectionChanged}"
-            DoubleTapped="{x:Bind OnDoubleTapItem}"
-        >
-            <ListView.Header>
-                <Border Padding="14,4,0,4" Background="{ThemeResource SolidBackgroundFillColorQuarternary}" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+        <labs:DataTableContainer Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                    <interactivity:Interaction.Behaviors>
-                        <behaviors:StickyHeaderBehavior />
-                    </interactivity:Interaction.Behaviors>
+            <Border Grid.Row="0"
+                Padding="14,4,0,4"
+                Background="{ThemeResource SolidBackgroundFillColorQuarternary}"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+            >
+                <labs:DataTable>
+                    <labs:DataTable.Resources>
+                        <Style TargetType="labs:DataColumn">
+                            <Setter Property="CanResize" Value="True" />
+                            <Setter Property="FontSize" Value="12" />
+                        </Style>
+                    </labs:DataTable.Resources>
 
-                    <labs:DataTable>
-                        <labs:DataTable.Resources>
-                            <Style TargetType="labs:DataColumn">
-                                <Setter Property="CanResize" Value="True" />
-                                <Setter Property="FontSize" Value="12" />
-                            </Style>
-                        </labs:DataTable.Resources>
+                    <labs:DataColumn MinWidth="120">Name</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Size</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Modified</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Created</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Comment</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Folders</labs:DataColumn>
+                    <labs:DataColumn MinWidth="120">Files</labs:DataColumn>
+                </labs:DataTable>
+            </Border>
 
-                        <labs:DataColumn MinWidth="120">Name</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Size</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Modified</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Created</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Comment</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Folders</labs:DataColumn>
-                        <labs:DataColumn MinWidth="120">Files</labs:DataColumn>
-                    </labs:DataTable>
-                </Border>
-            </ListView.Header>
+            <ListView Grid.Row="1"
+                ItemsSource="{x:Bind _vm.Items, Mode=OneWay}"
+                SelectionMode="Extended"
+                Background="{StaticResource SolidBackgroundFillColorTertiary}"
+                VerticalAlignment="Stretch"
+                SelectedItem="{x:Bind _vm.SelectedItem, Mode=TwoWay}"
+                SelectionChanged="{x:Bind OnSelectionChanged}"
+                DoubleTapped="{x:Bind OnDoubleTapItem}"
+            >
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IItemViewModel">
+                        <labs:DataRow HorizontalAlignment="Left">
 
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="vm:IItemViewModel">
-                    <labs:DataRow HorizontalAlignment="Left">
+                            <labs:DataRow.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Padding" Value="0,0,12,0" />
+                                    <Setter Property="FontSize" Value="13" />
+                                </Style>
+                            </labs:DataRow.Resources>
 
-                        <labs:DataRow.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Padding" Value="0,0,12,0" />
-                                <Setter Property="FontSize" Value="13" />
-                            </Style>
-                        </labs:DataRow.Resources>
-                        
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Symbol="{x:Bind Icon}" Margin="0,0,10,0" />
-                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
-                        </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="{x:Bind Icon}" Margin="0,0,10,0" />
+                                <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
+                            </StackPanel>
 
-                        <TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{x:Bind Size}" />
+                            <TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{x:Bind Size}" />
 
-                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Modified}" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Modified}" />
 
-                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Created}" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Created}" />
 
-                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Comment}" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Comment}" />
 
-                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Folders}" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Folders}" />
 
-                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Files}" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Files}" />
 
-                    </labs:DataRow>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </labs:DataRow>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </labs:DataTableContainer>
 
     </Grid>
 </Page>

@@ -13,8 +13,6 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" />
 		<PackageReference Include="Communitytoolkit.Labs.WinUI.Controls.DataTable" />
-		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Condition="'$(TargetFramework)' != 'net8.0-windows10.0.19041'" />
-		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041'" />
 		<PackageReference Include="Uno.Dsp.Tasks" />
 		<PackageReference Include="Uno.WinUI" />
 		<PackageReference Include="Uno.Resizetizer" />
