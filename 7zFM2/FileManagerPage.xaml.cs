@@ -1,21 +1,25 @@
-using CommunityToolkit.WinUI.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using SevenZip.FileManager2.Controls;
+using SevenZip.FileManager2.Models;
 using SevenZip.FileManager2.ViewModels;
 using System.Collections;
+using Windows.Foundation;
 
 namespace SevenZip.FileManager2;
 
 public sealed partial class FileManagerPage : Page
 {
     private readonly FileManagerViewModel _vm;
+    private readonly MultiTapConfiguration _multiTapConfiguration;
 
     public FileManagerPage()
     {
         InitializeComponent();
 
         _vm = App.Current.Host.Services.GetRequiredService<FileManagerViewModel>();
+        _multiTapConfiguration = App.Current.Host.Services.GetRequiredService<MultiTapConfiguration>();
 
         _vm.ExtractStarted += OnExtract;
     }
@@ -35,14 +39,52 @@ public sealed partial class FileManagerPage : Page
         }.ShowAsync();
     }
 
-    private void OnDoubleTapItem(object sender, DoubleTappedRoutedEventArgs args)
+#if HAS_UNO
+    private struct Tap
+    {
+        public long Tick;
+        public Point Position;
+    }
+
+    private Tap _lastTap = default;
+
+    private void OnTapItem(object sender, TappedRoutedEventArgs args)
+    {
+        // Uno does not implement DoubleTapped event properly in a nested view as of 2023/09/01,
+        // so we have to simulate a DoubleTapped event by our own here.
+
+        var position = args.GetPosition(this);
+        var now = DateTime.Now.Ticks;
+
+        if (
+            _lastTap.Tick > now - _multiTapConfiguration.MultiTapMultiTapMaxDelayTicks &&
+            Math.Abs(_lastTap.Position.X - position.X) < _multiTapConfiguration.TapMaxXDelta &&
+            Math.Abs(_lastTap.Position.Y - position.Y) < _multiTapConfiguration.TapMaxYDelta
+        )
+        {
+            args.Handled = true;
+            _lastTap = default;
+            OnDoubleTapItem(sender, args);
+        }
+        else
+        {
+            _lastTap = new()
+            {
+                Tick = now,
+                Position = position
+            };
+        }
+
+    }
+#endif
+    private void OnDoubleTapItem(object sender, RoutedEventArgs args)
     {
         if (!(args.OriginalSource is DependencyObject))
         {
             return;
         }
 
-        var row = FindParent<ListViewItemPresenter>((args.OriginalSource as DependencyObject)!);
+        var row = FindParent<ItemsPresenter>((args.OriginalSource as DependencyObject)!);
         if (row == null)
         {
             return;
@@ -50,6 +92,7 @@ public sealed partial class FileManagerPage : Page
 
         _vm.Open();
     }
+
 
     private static T? FindParent<T>(DependencyObject child) where T : DependencyObject
     {

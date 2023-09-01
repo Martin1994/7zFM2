@@ -3,6 +3,7 @@
 /.vsconfig
 /.editorconfig
 *.csproj.user
+*_wpftmp.csproj
 
 bin
 obj

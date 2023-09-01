@@ -1,3 +1,4 @@
+using SevenZip.FileManager2.Models;
 using SevenZip.FileManager2.ViewModels;
 using System.Runtime.InteropServices;
 
@@ -82,6 +83,7 @@ public class App : Application
     protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services.AddScoped(ProvideItemTree);
+        services.AddSingleton(ProvideMultiTapConfiguration);
     }
 
     protected virtual FileManagerViewModel ProvideItemTree(IServiceProvider provider)
@@ -93,6 +95,16 @@ public class App : Application
         new SystemDirectoryViewModel(new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))).Open(fm);
 
         return fm;
+    }
+
+    protected virtual MultiTapConfiguration ProvideMultiTapConfiguration(IServiceProvider provider)
+    {
+        return new()
+        {
+            MultiTapMultiTapMaxDelayTicks = TimeSpan.FromMilliseconds(1000).Ticks,
+            TapMaxXDelta = 10,
+            TapMaxYDelta = 10
+        };
     }
 
     protected virtual void InitializeWindow()
