@@ -4,6 +4,8 @@
 /.editorconfig
 *.csproj.user
 *_wpftmp.csproj
+.DS_Store
 
+*.binlog
 bin
 obj

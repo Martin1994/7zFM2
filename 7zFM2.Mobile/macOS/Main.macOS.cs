@@ -1,4 +1,4 @@
-using AppKit;
+﻿using AppKit;
 
 namespace SevenZip.FileManager2.MacOS
 {
@@ -13,4 +13,3 @@ namespace SevenZip.FileManager2.MacOS
 		}
 	}
 }
-

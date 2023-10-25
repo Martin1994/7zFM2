@@ -1,5 +1,3 @@
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using SevenZip.FileManager2.Controls;
 using SevenZip.FileManager2.Models;
@@ -48,12 +46,33 @@ public sealed partial class FileManagerPage : Page
 
     private Tap _lastTap = default;
 
+    private Point GetTapPosition(TappedRoutedEventArgs args)
+    {
+
+#if __MACOS__
+        // MacOS don't have implemented UIElement::GetPosition
+        var originalSource = args.OriginalSource as UIElement;
+        if (originalSource == null)
+        {
+            return default(Point);
+        }
+        var position = args.GetPosition(originalSource);
+        if (this == originalSource)
+        {
+            return position;
+        }
+        return TransformToVisual(originalSource).TransformPoint(position);
+#else
+        return args.GetPosition(this);
+#endif
+    }
+
     private void OnTapItem(object sender, TappedRoutedEventArgs args)
     {
         // Uno does not implement DoubleTapped event properly in a nested view as of 2023/09/01,
         // so we have to simulate a DoubleTapped event by our own here.
 
-        var position = args.GetPosition(this);
+        var position = GetTapPosition(args);
         var now = DateTime.Now.Ticks;
 
         if (
@@ -100,9 +119,9 @@ public sealed partial class FileManagerPage : Page
 
         do
         {
-            if (current is T)
+            if (current is T t)
             {
-                return (T)current;
+                return t;
             }
 
             current = VisualTreeHelper.GetParent(current);
