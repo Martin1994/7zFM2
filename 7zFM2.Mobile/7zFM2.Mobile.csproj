@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-maccatalyst;net10.0-macos</TargetFrameworks>
+		<TargetFrameworks>net10.0-maccatalyst27;net10.0-macos27</TargetFrameworks>
+		<NoWarn>$(NoWarn);XCODE_27_0_PREVIEW</NoWarn>
 		<SingleProject>true</SingleProject>
 		<OutputType>Exe</OutputType>
 		<!-- Display name -->
