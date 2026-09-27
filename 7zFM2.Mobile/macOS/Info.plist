@@ -18,6 +18,12 @@
 	<string>NSApplication</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcons.appiconset</string>
+	<!--
+		Registers the fonts bundled by UnoAssets.macOS.targets (Contents/Resources/Fonts) with the OS.
+		See 7zFM2.Mobile/macOS/UnoAssets.macOS.targets for the details.
+	-->
+	<key>ATSApplicationFontsPath</key>
+	<string>Fonts</string>
 
 	<!--
 	Adjust this to your application's encryption usage.

@@ -29,7 +29,7 @@
 		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
 			<PropertyGroup>
 				<IsIOS>true</IsIOS>
-				<SupportedOSPlatformVersion>14.2</SupportedOSPlatformVersion>
+				<SupportedOSPlatformVersion>27.0</SupportedOSPlatformVersion>
 			</PropertyGroup>
 		</When>
 		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
@@ -41,7 +41,7 @@
 		<When Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
 			<PropertyGroup>
 				<IsMacCatalyst>true</IsMacCatalyst>
-				<SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
+				<SupportedOSPlatformVersion>27.0</SupportedOSPlatformVersion>
 			</PropertyGroup>
 		</When>
 		<When Condition="$(TargetFramework.Contains('windows10'))">

@@ -1,0 +1,112 @@
+<Project>
+	<!--
+		macOS-only workaround for Uno.UI 4.9.x.
+
+		Uno's asset retargeting (target "UnoAssetsGeneration" -> task "RetargetAssets") never runs for the
+		native macOS target: "XamarinProjectType" is only set for ios / maccatalyst / android /
+		xamarinmac20 / wasm / skia, so it is empty for TFM net*-macos, and the RetargetAssets task itself
+		has no macOS branch either. Assets expanded from the Uno "library layout" (.uprimarker files in
+		packages such as Uno.Fonts.*) therefore stay plain publish items and the macOS SDK silently drops
+		the ones it cannot place:
+
+		    warning : The file '...' does not specify a 'PublishFolderType' metadata, and a default value
+		              could not be calculated. The file will not be copied to the app bundle.
+
+		For fonts this is what this file fixes. Every font asset is re-declared as BundleResource for
+		macOS only, twice:
+
+		  1. under the exact "TargetPath" computed by Uno (e.g. Uno.Fonts.Roboto/Fonts/Roboto-Regular.ttf),
+		     so that ms-appx:///Uno.Fonts.Roboto/Fonts/Roboto-Regular.ttf resolves inside the bundle,
+		  2. in a flat "Fonts/" folder, which is registered with the OS through ATSApplicationFontsPath
+		     in macOS/Info.plist (the layout Uno documents for custom fonts on macOS).
+
+		Delete this file once Uno retargets assets for macOS.
+	-->
+	<PropertyGroup>
+		<_IsUnoMacOSHead Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">true</_IsUnoMacOSHead>
+	</PropertyGroup>
+
+	<Target Name="_UnoMacOSDeclareMissingUnoAssets"
+			Condition="'$(_IsUnoMacOSHead)' == 'true'"
+			DependsOnTargets="GetCopyToOutputDirectoryItems"
+			BeforeTargets="_ComputePublishLocation;_CollectBundleResources;_BeforeCoreCompileImageAssets">
+
+		<!-- Font assets present in the build, including the ones expanded from Uno library-layout packages -->
+		<ItemGroup>
+			<_UnoMacOSUnoAssetFiles Include="@(AllItemsFullPathWithTargetPath)"
+									Condition="'%(AllItemsFullPathWithTargetPath.Extension)' == '.ttf' or '%(AllItemsFullPathWithTargetPath.Extension)' == '.otf'" />
+		</ItemGroup>
+
+		<!-- The fonts are bundled through the BundleResource items below, so tell the macOS SDK not to
+		     publish the original (unplaceable) items: this is what produces
+		     "does not specify a 'PublishFolderType' metadata ... will not be copied to the app bundle". -->
+		<ItemGroup>
+			<AllItemsFullPathWithTargetPath Update="@(_UnoMacOSUnoAssetFiles)" PublishFolderType="None" />
+		</ItemGroup>
+
+		<!-- Both variants are declared from distinct item specs: declaring the same file twice with two
+		     different LogicalName values gets de-duplicated by the SDK. -->
+		<Copy SourceFiles="@(_UnoMacOSUnoAssetFiles)"
+				DestinationFolder="$(IntermediateOutputPath)unofonts"
+				SkipUnchangedFiles="true" />
+
+		<ItemGroup>
+			<_UnoMacOSFlatFontFiles Include="$(IntermediateOutputPath)unofonts\*.ttf;$(IntermediateOutputPath)unofonts\*.otf" />
+
+			<!-- 1) keep the path Uno expects, e.g. ms-appx:///Uno.Fonts.Roboto/Fonts/Roboto-Regular.ttf -->
+			<BundleResource Include="@(_UnoMacOSUnoAssetFiles)"
+							Condition="'%(_UnoMacOSUnoAssetFiles.TargetPath)' != ''"
+							LogicalName="%(_UnoMacOSUnoAssetFiles.TargetPath)" />
+
+			<!-- 2) flat "Fonts" folder, registered with the OS through ATSApplicationFontsPath -->
+			<BundleResource Include="@(_UnoMacOSFlatFontFiles)"
+							LogicalName="Fonts/%(_UnoMacOSFlatFontFiles.Filename)%(_UnoMacOSFlatFontFiles.Extension)" />
+			<FileWrites Include="@(_UnoMacOSFlatFontFiles)" />
+		</ItemGroup>
+	</Target>
+
+	<!--
+		Uno also flows build-only artifacts into the app output: its library-layout ".uprimarker" files,
+		NuGet "buildTransitive/*.props" and the shared "Assets/SharedAssets.md" placeholder. None of them
+		is a runtime asset, and the macOS SDK reports each of them as
+
+		    warning : The file '...' does not specify a 'PublishFolderType' metadata, and a default value
+		              could not be calculated. The file will not be copied to the app bundle.
+
+		Declaring them as PublishFolderType=None says that explicitly and keeps the build quiet.
+		Extend the extension list if you add other non-runtime files (e.g. .txt / .json placeholders).
+
+		Hook: the items reach the bundler through @(ResolvedFileToPublish), which is populated by
+		"_ComputeCopyToPublishDirectoryItems" and consumed by "ComputeBundleLocation" inside
+		"_ComputePublishLocation". A BeforeTargets="_ComputePublishLocation" hook is too early (it runs
+		before that target's DependsOnTargets, i.e. before the list is populated), so hook the producer.
+
+		KNOWN LIMITATION: the ".uprimarker" files that NuGet packages ship inside "lib/<tfm>/"
+		(Uno.Fonts.*, Uno.Extensions.*) are treated as NuGet *runtime* assets and enter
+		@(ResolvedFileToPublish) in a later phase; marking them here (or on ReferenceCopyLocalPaths
+		right after ResolvePackageAssets) has no effect, so a macOS build still reports four
+		"does not specify a 'PublishFolderType' ... will not be copied to the app bundle" warnings for
+		those files. They are build-time markers only and the files are never needed at runtime, so the
+		warnings are cosmetic. The real fix belongs in the Uno packages (do not place the marker in
+		"lib/") or in Uno's own macOS asset support.
+	-->
+	<Target Name="_UnoMacOSSkipNonRuntimeAssets"
+			Condition="'$(_IsUnoMacOSHead)' == 'true'"
+			AfterTargets="_ComputeCopyToPublishDirectoryItems">
+		<ItemGroup>
+			<ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+								   Condition="'%(ResolvedFileToPublish.Extension)' == '.uprimarker' or '%(ResolvedFileToPublish.Extension)' == '.props' or '%(ResolvedFileToPublish.Extension)' == '.md'"
+								   PublishFolderType="None" />
+			<Content Update="@(Content)"
+					 Condition="'%(Content.Extension)' == '.uprimarker' or '%(Content.Extension)' == '.props' or '%(Content.Extension)' == '.md'"
+					 PublishFolderType="None" />
+			<None Update="@(None)"
+				  Condition="'%(None.Extension)' == '.uprimarker' or '%(None.Extension)' == '.props' or '%(None.Extension)' == '.md'"
+				  PublishFolderType="None" />
+			<AllItemsFullPathWithTargetPath Update="@(AllItemsFullPathWithTargetPath)"
+												Condition="'%(AllItemsFullPathWithTargetPath.Extension)' == '.uprimarker' or '%(AllItemsFullPathWithTargetPath.Extension)' == '.props' or '%(AllItemsFullPathWithTargetPath.Extension)' == '.md'"
+												PublishFolderType="None" />
+		</ItemGroup>
+	</Target>
+
+</Project>

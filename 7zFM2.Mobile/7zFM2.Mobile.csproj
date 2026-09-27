@@ -61,4 +61,6 @@
 		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
 	</ItemGroup>
 	<Import Project="..\7zFM2.Base\base.props" />
+	<!-- macOS-only: Uno.UI 4.9.x does not retarget assets for native macOS (see file header). -->
+	<Import Project="$(MSBuildThisFileDirectory)macOS\UnoAssets.macOS.targets" />
 </Project>
