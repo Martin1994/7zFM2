@@ -1,68 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) or '$(EnableWindowsTargeting)' == 'true'">$(TargetFrameworks);net8.0-windows10.0.19041</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-maccatalyst27;net10.0-macos27</TargetFrameworks>
-		<TargetFrameworks>$(TargetFrameworks);net8.0</TargetFrameworks>
-		<NoWarn>$(NoWarn);XCODE_27_0_PREVIEW</NoWarn>
+		<!--
+			Deliberately a single, platform-neutral TFM.
 
+			This is the shared UI library. It is consumed by the macOS AppKit head
+			(net10.0-macos27) and the Linux GTK4 head (plain net10.0). A net10.0 project cannot
+			reference a platform-specific project, so platform-specific implementation lives in
+			the heads and is supplied through DI - never through a project reference.
+
+			Consequence: MACOS / WINDOWS / LINUX are all undefined here. Do not #if on them in this
+			project; both branches would be compiled away silently.
+		-->
+		<TargetFramework>net10.0</TargetFramework>
+		<UseMaui>true</UseMaui>
 		<RootNamespace>SevenZip.FileManager2</RootNamespace>
-
-		<!-- Ensures the .xr.xml files are generated in a proper layout folder -->
-		<GenerateLibraryLayout>true</GenerateLibraryLayout>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
-		<PackageReference Include="Communitytoolkit.Labs.WinUI.Controls.DataTable" />
-		<PackageReference Include="Uno.Dsp.Tasks" />
-		<PackageReference Include="Uno.WinUI" />
-		<PackageReference Include="Uno.Resizetizer" />
-		<PackageReference Include="Uno.Extensions.Logging.WinUI" />
-		<PackageReference Include="Uno.Material.WinUI" />
-		<PackageReference Include="Uno.Extensions.Hosting.WinUI" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" />
 		<PackageReference Include="NaturalStringExtensions" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="../SevenZipSharp/SevenZipSharp.csproj" />
-	</ItemGroup>
-
-	<Choose>
-		<When Condition="$(IsWinAppSdk)">
-			<PropertyGroup>
-				<!--
-				If you encounter this error message:
-
-					error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
-					Please update to a newer .NET SDK in order to reference this assembly.
-
-				This means that the two packages below must be aligned with the "build" version number of
-				the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
-				must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
-				-->
-				<!-- <WindowsSdkPackageVersion>10.0.22621.28</WindowsSdkPackageVersion> -->
-			</PropertyGroup>
-			<ItemGroup>
-				<PackageReference Include="Microsoft.WindowsAppSDK" />
-				<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<Content Include="Assets\**" />
-				<Page Include="**\*.xaml" Exclude="bin\**\*.xaml;obj\**\*.xaml" />
-				<Compile Update="**\*.xaml.cs">
-					<DependentUpon>%(Filename)</DependentUpon>
-				</Compile>
-				<PRIResource Include="**\*.resw" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
-
-	<ItemGroup>
-		<UnoDspImportColors Include="Styles\*.zip" Generator="Xaml" />
-		<UnoImage Include="Assets\**\*.svg" />
-		<UpToDateCheckInput Include="**\*.xaml" Exclude="bin\**\*.xaml;obj\**\*.xaml" />
+		<ProjectReference Include="..\SevenZipSharp\SevenZipSharp.csproj" />
+		<ProjectReference Include="..\7zFM2.DataTable\7zFM2.DataTable.csproj" />
 	</ItemGroup>
 </Project>

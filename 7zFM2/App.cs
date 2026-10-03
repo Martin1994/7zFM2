@@ -1,113 +1,53 @@
-using SevenZip.FileManager2.Models;
 using SevenZip.FileManager2.ViewModels;
-using System.Runtime.InteropServices;
 
 namespace SevenZip.FileManager2;
 
 public class App : Application
 {
     public static new App Current => (Application.Current as App)!;
-    public static Window MainWindow { get; private set; } = null!;
-    public IHost Host { get; private set; } = null!;
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    /// <summary>
+    /// The application's service provider.
+    /// </summary>
+    /// <remarks>
+    /// The container is the one built in each head's <c>MauiProgram</c>; MAUI hands it back through
+    /// <see cref="IPlatformApplication"/>.
+    /// </remarks>
+    public static IServiceProvider Services =>
+        IPlatformApplication.Current?.Services
+            ?? throw new InvalidOperationException("The MAUI service provider is not available yet.");
+
+    public App()
     {
-        var builder = this.CreateBuilder(args)
-            .Configure(host => host
-#if DEBUG
-            // Switch to Development environment when running in DEBUG
-            .UseEnvironment(Environments.Development)
-#endif
-            .UseLogging(configure: (context, logBuilder) =>
-            {
-                // Configure log levels for different categories of logging
-                logBuilder
-                    .SetMinimumLevel(
-                        context.HostingEnvironment.IsDevelopment() ?
-                            LogLevel.Information :
-                            LogLevel.Warning)
-
-                    // Default filters for core Uno Platform namespaces
-                    .CoreLogLevel(LogLevel.Warning);
-
-                // Uno Platform namespace filter groups
-                // Uncomment individual methods to see more detailed logging
-                //// Generic Xaml events
-                //logBuilder.XamlLogLevel(LogLevel.Debug);
-                //// Layouter specific messages
-                //logBuilder.XamlLayoutLogLevel(LogLevel.Debug);
-                //// Storage messages
-                //logBuilder.StorageLogLevel(LogLevel.Debug);
-                //// Binding related messages
-                //logBuilder.XamlBindingLogLevel(LogLevel.Debug);
-                //// Binder memory references tracking
-                //logBuilder.BinderMemoryReferenceLogLevel(LogLevel.Debug);
-                //// RemoteControl and HotReload related
-                //logBuilder.HotReloadCoreLogLevel(LogLevel.Information);
-                //// Debug JS interop
-                //logBuilder.WebAssemblyLogLevel(LogLevel.Debug);
-
-            }, enableUnoLogging: true)
-
-            .ConfigureServices(ConfigureServices)
-        );
-        MainWindow = builder.Window;
-
-        Host = builder.Build();
-
-        // Do not repeat app initialization when the Window already has content,
-        // just ensure that the window is active
-        if (MainWindow.Content is not Frame rootFrame)
-        {
-            // Create a Frame to act as the navigation context and navigate to the first page
-            rootFrame = new Frame();
-
-            // Place the frame in the current Window
-            MainWindow.Content = rootFrame;
-        }
-
-        if (rootFrame.Content == null)
-        {
-            // When the navigation stack isn't restored navigate to the first page,
-            // configuring the new page by passing required information as a navigation
-            // parameter
-            rootFrame.Navigate(typeof(FileManagerPage), args.Arguments);
-        }
-
-        InitializeWindow();
-
-        // Ensure the current window is active
-        MainWindow.Activate();
+        Resources.MergedDictionaries.Add(new AppResources());
     }
 
-    protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    protected override Window CreateWindow(IActivationState? activationState)
     {
-        services.AddScoped(ProvideItemTree);
-        services.AddSingleton(ProvideMultiTapConfiguration);
+        return new Window(new FileManagerPage())
+        {
+            Title = "7-zip File Manager 2",
+        };
     }
 
-    protected virtual FileManagerViewModel ProvideItemTree(IServiceProvider provider)
+    /// <summary>
+    /// Registers the services shared by every platform head.
+    /// </summary>
+    /// <remarks>
+    /// Called from each head's <c>MauiProgram.CreateMauiApp</c>. Anything platform-specific is
+    /// registered by the head itself.
+    /// </remarks>
+    public static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped(ProvideFileManager);
+    }
+
+    private static FileManagerViewModel ProvideFileManager(IServiceProvider provider)
     {
         var fm = new FileManagerViewModel();
-
-        MainWindow.Title = "7-zip File Manager 2";
 
         new SystemDirectoryViewModel(new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))).Open(fm);
 
         return fm;
-    }
-
-    protected virtual MultiTapConfiguration ProvideMultiTapConfiguration(IServiceProvider provider)
-    {
-        return new()
-        {
-            MultiTapMultiTapMaxDelayTicks = TimeSpan.FromMilliseconds(1000).Ticks,
-            TapMaxXDelta = 10,
-            TapMaxYDelta = 10
-        };
-    }
-
-    protected virtual void InitializeWindow()
-    {
     }
 }

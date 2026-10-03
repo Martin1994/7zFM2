@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!--
+			There is no official net10.0-linux TFM, so the GTK4 backend is consumed from a plain
+			net10.0 head project that references the shared library. Unlike the macOS head this
+			needs no workload: Microsoft.Maui.Platforms.Linux.Gtk4 pulls Microsoft.Maui.Controls in
+			transitively.
+		-->
+		<TargetFramework>net10.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>SevenZip.FileManager2.Linux</RootNamespace>
+
+		<ApplicationTitle>7zFM2</ApplicationTitle>
+		<ApplicationId>SevenZip.FileManager2</ApplicationId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- MAUI Labs GTK4 backend. Pre-release, not covered by the MAUI support policy. -->
+		<PackageReference Include="Microsoft.Maui.Platforms.Linux.Gtk4" />
+		<PackageReference Include="Microsoft.Maui.Platforms.Linux.Gtk4.Essentials" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+	</ItemGroup>
+
+	<!--
+		TODO(port): app icon. The GTK4 backend consumes @(MauiIcon) itself (hicolor icon theme), but
+		there is no artwork in the repo yet. MauiImage / MauiFont / MauiAsset are copied verbatim by
+		that backend (no SVG rasterisation), and the default Resources/Images|Fonts|Raw globs are
+		supplied by the backend package, not by MAUI.
+	-->
+</Project>

@@ -9,7 +9,8 @@ public class SevenZipItemViewModel : IItemViewModel
 
     public SevenZipInArchive Archive => _node.Archive;
 
-    public Symbol Icon => _node.Type == SevenZipItemType.File ? Symbol.Document : Symbol.Folder;
+    // TODO(port): see IItemViewModel.Icon - not rendered yet.
+    public string Icon => "";
 
     public string Name => _node.Name;
 

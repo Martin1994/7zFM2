@@ -11,7 +11,8 @@ public class SystemFileViewModel : IItemViewModel
         _info = info;
     }
 
-    public Symbol Icon => Symbol.Document;
+    // TODO(port): see IItemViewModel.Icon - not rendered yet.
+    public string Icon => "";
 
     public string Name => _info.Name;
 

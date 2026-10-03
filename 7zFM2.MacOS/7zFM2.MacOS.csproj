@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!--
+			Platform version 27 selects the Microsoft.macOS.Sdk.net10.0_27.0 pack, which matches the
+			installed Xcode 27. The versionless net10.0-macos TFM resolves to the 26.5 SDK pack whose
+			_ValidateXcodeVersion target rejects Xcode 27.
+		-->
+		<TargetFramework>net10.0-macos27</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<RootNamespace>SevenZip.FileManager2.MacOS</RootNamespace>
+
+		<ApplicationTitle>7zFM2</ApplicationTitle>
+		<ApplicationId>SevenZip.FileManager2</ApplicationId>
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" />
+		<!--
+			MAUI Labs AppKit backend - a native NSWindow/NSButton/NSScrollView backend, NOT
+			Mac Catalyst. Pre-release and not covered by the MAUI support policy.
+		-->
+		<PackageReference Include="Microsoft.Maui.Platforms.MacOS" />
+		<PackageReference Include="Microsoft.Maui.Platforms.MacOS.Essentials" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+	</ItemGroup>
+
+	<!--
+		TODO(port): app icon, entitlements and the Release re-signing step.
+		  * MauiIcon is handled by Microsoft.Maui.Platforms.MacOS itself (sips + iconutil -> .icns).
+		    There is no app icon yet - the repo has no artwork of its own.
+		  * MAUI's Resizetizer is inert on this head (_ResizetizerIsCompatibleApp is empty for
+		    net10.0-macos*), so MauiImage / MauiFont / MauiAsset need a hand-written
+		    BundleResource target.
+		  * Release bundles need a manual re-sign step;
+		    Hardened runtime needs both allow-jit and
+		    disable-library-validation, the latter because lib7z is supplied by the user.
+	-->
+</Project>

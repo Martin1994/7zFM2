@@ -9,3 +9,5 @@
 *.binlog
 bin
 obj
+
+/spike

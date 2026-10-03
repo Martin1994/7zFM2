@@ -1,10 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Kept under its original path/name for history purposes, but retargeted: MAUI has no TextBlock
+    control (Label replaces it).
+-->
 <ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <x:Double x:Key="SecondaryTextFontSize">12</x:Double>
-    <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
-        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+    <!--
+        TODO: hard-coded for now - move to an AppThemeBinding once there is a palette.
+    -->
+    <Style x:Key="SecondaryTextStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="#8B8494" />
     </Style>
 </ResourceDictionary>

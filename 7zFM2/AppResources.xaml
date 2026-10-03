@@ -1,17 +1,13 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    x:Class="SevenZip.FileManager2.AppResources"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <!-- Load WinUI resources -->
-        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-
-        <!--<MaterialTheme  xmlns="using:Uno.Material"
-			ColorOverrideSource="ms-appx:///7zFM2/Styles/ColorPaletteOverride.xaml"
-			FontOverrideSource="ms-appx:///7zFM2/Styles/MaterialFontsOverride.xaml" />-->
-
-        <!--Customized styles-->
-        <ResourceDictionary Source="ms-appx:///7zFM2/Styles/TextBlock.xaml" />
-
+        <!--
+            TODO: there is no colour palette of our own yet, so MAUI's defaults apply.
+        -->
+        <ResourceDictionary Source="Styles/TextBlock.xaml" />
     </ResourceDictionary.MergedDictionaries>
-
 </ResourceDictionary>

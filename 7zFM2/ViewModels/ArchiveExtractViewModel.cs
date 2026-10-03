@@ -1,4 +1,4 @@
-using Microsoft.UI.Dispatching;
+using Microsoft.Maui.Dispatching;
 using System.Diagnostics;
 
 namespace SevenZip.FileManager2.ViewModels;
@@ -48,7 +48,7 @@ public partial class ArchiveExtractViewModel : ObservableObject
 
             callback.Flush(true);
 
-            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            Dispatcher.GetForCurrentThread()!.Dispatch(() =>
             {
                 CurrentFilePath = "";
                 Status = "Completed.";
@@ -87,7 +87,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
 {
     private readonly ArchiveExtractViewModel _vm;
     private readonly SevenZipInArchive _archive;
-    private readonly DispatcherQueue _dispatcherQueue = DispatcherQueue.GetForCurrentThread() ?? throw new InvalidOperationException("ArchiveExtractCallback must be constructed in a UI thread.");
+    private readonly IDispatcher _dispatcher = Dispatcher.GetForCurrentThread() ?? throw new InvalidOperationException("ArchiveExtractCallback must be constructed in a UI thread.");
 
     private ulong _items = 0;
     private uint _currentId = 0;
@@ -122,7 +122,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
                 currentFile = _archive[_currentId].Path;
             }
 
-            _dispatcherQueue.TryEnqueue(() =>
+            _dispatcher.Dispatch(() =>
             {
                 double progress = ClampRatio((double)_completed / _total);
 
@@ -216,7 +216,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
     public void SetTotal(ulong size)
     {
         _total = size;
-        _dispatcherQueue.TryEnqueue(() =>
+        _dispatcher.Dispatch(() =>
         {
             _vm.TotalBytes = size;
         });

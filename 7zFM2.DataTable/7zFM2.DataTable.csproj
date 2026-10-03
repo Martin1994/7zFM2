@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!-- Single platform-neutral TFM, for the same reason as 7zFM2: consumed by both heads. -->
+		<TargetFramework>net10.0</TargetFramework>
+		<UseMaui>true</UseMaui>
+		<RootNamespace>SevenZip.FileManager2.Controls</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" />
+	</ItemGroup>
+</Project>

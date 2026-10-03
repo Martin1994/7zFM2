@@ -5,7 +5,8 @@ namespace SevenZip.FileManager2.ViewModels;
 public class SystemDriveViewModel : IItemViewModel
 {
 
-    public Symbol Icon => Symbol.Library;
+    // TODO(port): see IItemViewModel.Icon - not rendered yet.
+    public string Icon => "";
 
     public string Name => Environment.MachineName;
 

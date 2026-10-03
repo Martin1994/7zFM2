@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The WinUI application object for the Windows head. WinUI emits Main() for it, which is why
+    this project is an exe with no Program.cs of its own.
+
+    No <maui:MauiWinUIApplication.Resources> here: Microsoft.Maui adds XamlControlsResources
+    itself at startup, which is why the shipped `dotnet new maui` template leaves this empty.
+-->
+<maui:MauiWinUIApplication
+    x:Class="SevenZip.FileManager2.Windows.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui">
+
+</maui:MauiWinUIApplication>
