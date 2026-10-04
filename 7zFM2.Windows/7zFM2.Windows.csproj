@@ -13,6 +13,31 @@
 		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 
+		<!--
+			WindowsAppSDKSelfContained (which MAUI turns on for unpackaged apps) unpacks a
+			per-architecture Windows App SDK payload, so it needs a real architecture. A bare
+			`dotnet build`/`dotnet run` leaves Platform at AnyCPU with an empty
+			RuntimeIdentifier, and WindowsAppSDK's GetWindowsAppSDKNativePlatform target then
+			fails the build with "WindowsAppSDKSelfContained requires a supported Windows
+			architecture". Mirror the solution's Any CPU -> x64 mapping so the CLI workflow
+			works; an explicit Platform (VS, -p:Platform=..., a solution configuration) wins.
+		-->
+		<Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+
+		<!--
+			SDK 10.0.102 pins the Windows SDK projection at 10.0.19041.57, which bundles
+			CsWinRT 2.2.0. Its AOT source generator builds the vtable-classes namespace from
+			the *assembly* name and, for an assembly name starting with a digit, emits
+			`namespace WinRT.7zFM2_WindowsVtableClasses` - `7zFM2_Windows` is not a valid C#
+			identifier, so the generated *.WinRTVtable.g.cs files fail to compile
+			(CS0118/CS0103/CS1729). RootNamespace does not help here; the generator only reads
+			AssemblyName. CsWinRT fixed the escaping in 2.3.0 (microsoft/CsWinRT#2013) by
+			prefixing an underscore, and 10.0.19041.87 is the first projection revision that
+			carries it: it generates `WinRT._7zFM2_WindowsVtableClasses`. This keeps the
+			assembly name 7zFM2.Windows, and therefore 7zFM2.Windows.exe, unchanged.
+		-->
+		<WindowsSdkPackageVersion>10.0.19041.87</WindowsSdkPackageVersion>
+
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
