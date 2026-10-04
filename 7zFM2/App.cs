@@ -24,7 +24,9 @@ public class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new FileManagerPage())
+        // Shell rather than the page directly: on Windows the ContentPage menu bar is hosted by the
+        // window's toolbar, which only Shell/NavigationPage provide. See AppShell.
+        return new Window(new AppShell())
         {
             Title = "7-zip File Manager 2",
         };
