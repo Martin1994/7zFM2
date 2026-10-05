@@ -51,6 +51,7 @@
         </Grid>
 
         <dt:DataTable
+            x:Name="FileList"
             Grid.Row="3"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
@@ -64,8 +65,14 @@
                     -->
                     <Label Padding="0,0,12,0" FontSize="13" Text="{Binding Name}">
                         <Label.GestureRecognizers>
-                            <!-- Double-tap opens the item. -->
-                            <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnItemDoubleTapped" />
+                            <!--
+                                A *single* tap, deliberately: DataTable pairs two of them into a
+                                double click itself (see DataTable.ReportTap). Asking for
+                                NumberOfTapsRequired="2" here leaves the recognizer holding the
+                                first click, which stops the row from being selectable at all on
+                                the AppKit backend.
+                            -->
+                            <TapGestureRecognizer Tapped="OnItemTapped" />
                         </Label.GestureRecognizers>
                     </Label>
                 </DataTemplate>

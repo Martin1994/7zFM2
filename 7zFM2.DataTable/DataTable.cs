@@ -31,11 +31,30 @@ public class DataTable : ContentView
 
     public DataTable()
     {
+        // Apply the default before any items exist. The platform re-creates and re-measures item
+        // views when the selection mode changes, and it attaches the row's selection gesture to
+        // each item view as it is created - so the mode has to be right before the first reload.
+        _list.SelectionMode = SelectionMode;
         _list.SelectionChanged += OnListSelectionChanged;
         Content = _list;
     }
 
     public event EventHandler<SelectionChangedEventArgs>? SelectionChanged;
+
+    /// <summary>
+    /// Raised when a row is activated - two taps on the same item inside
+    /// <see cref="ActivationInterval"/>. Opening an archive or entering a directory hangs off this.
+    /// </summary>
+    public event EventHandler? ItemActivated;
+
+    /// <summary>
+    /// How far apart two taps may be and still count as one activation.
+    /// </summary>
+    /// <remarks>
+    /// TODO: ask the platform (NSEvent.DoubleClickInterval / GetDoubleClickTime) once a backend
+    /// exposes it; MAUI has no cross-platform API for this.
+    /// </remarks>
+    public static readonly TimeSpan ActivationInterval = TimeSpan.FromMilliseconds(500);
 
     public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(
         nameof(ItemsSource),
@@ -96,6 +115,36 @@ public class DataTable : ContentView
         if (!ReferenceEquals(table._list.SelectedItem, newValue))
         {
             table._list.SelectedItem = newValue;
+        }
+    }
+
+    private object? _lastTappedItem;
+    private long _lastTapTicks;
+
+    /// <summary>
+    /// Records a tap on <paramref name="item"/>, reported by the row template's
+    /// <c>TapGestureRecognizer</c>, and raises <see cref="ItemActivated"/> when the tap completes a
+    /// double tap.
+    /// </summary>
+    /// <remarks>
+    /// The row template must use a <b>single</b>-tap recognizer.
+    /// <c>TapGestureRecognizer NumberOfTapsRequired="2"</c> would stay in the "maybe" state after
+    /// the first click, and on the MAUI Labs AppKit backend that keeps the row's own
+    /// <c>NSClickGestureRecognizer</c> from ever recognising - the rows stop being selectable
+    /// altogether. Pairing the taps here instead keeps the two gestures independent.
+    /// </remarks>
+    public void ReportTap(object? item)
+    {
+        var now = Environment.TickCount64;
+        var isActivation = ReferenceEquals(item, _lastTappedItem)
+            && now - _lastTapTicks <= (long)ActivationInterval.TotalMilliseconds;
+
+        _lastTappedItem = isActivation ? null : item;
+        _lastTapTicks = now;
+
+        if (isActivation)
+        {
+            ItemActivated?.Invoke(this, EventArgs.Empty);
         }
     }
 
