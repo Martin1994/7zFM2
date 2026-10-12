@@ -35,8 +35,20 @@ public sealed partial class FileManagerPage : ContentPage
         }
     }
 
-    private void OnItemActivated(object? sender, EventArgs e)
+    private async void OnItemActivated(object? sender, EventArgs e)
     {
-        _vm.Open();
+        try
+        {
+            _vm.Open();
+        }
+        catch (Exception ex)
+        {
+            // Expected failure on user data: a truncated archive, a format the library does not know,
+            // a locked volume. Not a bug, so it must not go to the unhandled-exception hooks - those
+            // report and let the process die. Telling the user is the entire recovery.
+
+            // TODO: the platform's system alert, standing in for the app's own dialog.
+            await DisplayAlertAsync("Cannot open", ex.Message, "OK");
+        }
     }
 }

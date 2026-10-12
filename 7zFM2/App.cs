@@ -1,4 +1,6 @@
+using SevenZip.FileManager2.Platform;
 using SevenZip.FileManager2.ViewModels;
+using SevenZip.Native;
 
 namespace SevenZip.FileManager2;
 
@@ -41,6 +43,14 @@ public class App : Application
     /// </remarks>
     public static void ConfigureServices(IServiceCollection services)
     {
+        // Both before anything can open an archive, so a missing or unusable 7-Zip library fails at
+        // start-up: the file has to be located, and the format registry - which enumerates every
+        // handler over COM - has to be built.
+        SevenZipLibrary.Initialize();
+        SevenZipArchiveFormat.Initialize();
+
+        UnhandledExceptions.Install();
+
         services.AddScoped(ProvideFileManager);
     }
 
