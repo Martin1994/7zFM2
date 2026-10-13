@@ -53,6 +53,8 @@ public static class MauiProgram
             .AddMacOSEssentials();
 
         App.ConfigureServices(builder.Services);
+        builder.Services.AddSingleton<IDialogPresenter, MacOSDialogPresenter>();
+        builder.Services.AddSingleton<IPlatformWorkarounds, MacOSPlatformWorkarounds>();
 
         Console.WriteLine($"7-Zip: {SevenZipLibrary.Initialize()}");
 
@@ -121,31 +123,34 @@ public static class MauiProgram
     /// can possibly be, give every entry a reason and a way to tell when it can go, and delete
     /// entries once the backend is fixed.
     /// </remarks>
-    private static string? DescribeKnownBackendDefect(Exception? exception) => exception switch
+    private static string? DescribeKnownBackendDefect(Exception? exception)
     {
-        // MacOSMauiApplication.CreatePlatformWindow activates the window, and then
-        // ApplicationDidBecomeActive activates it again on every re-activation, so
-        // Microsoft.Maui.Controls.Window throws "Window was already activated" every time the window
-        // regains focus. MAUI guards against this on iOS (Issue21948) and Windows (Issue14142); the
-        // Labs backend does not. Upstream fix: do not activate a window that is already activated.
-        InvalidOperationException { Message: "Window was already activated" } =>
-            "MacOSMauiApplication.ApplicationDidBecomeActive re-activates an active window",
+        return exception switch
+        {
+            // MacOSMauiApplication.CreatePlatformWindow activates the window, and then
+            // ApplicationDidBecomeActive activates it again on every re-activation, so
+            // Microsoft.Maui.Controls.Window throws "Window was already activated" every time the window
+            // regains focus. MAUI guards against this on iOS (Issue21948) and Windows (Issue14142); the
+            // Labs backend does not. Upstream fix: do not activate a window that is already activated.
+            InvalidOperationException { Message: "Window was already activated" } =>
+                "MacOSMauiApplication.ApplicationDidBecomeActive re-activates an active window",
 
-        // AppKit closes the window as part of termination, and that close notification arrives after
-        // MAUI has already disconnected the window handler. WindowHandler.OnWindowClosed then reads
-        // VirtualView through the generic ElementHandler<,> getter, which throws for a disconnected
-        // handler instead of returning null. Without this entry the app aborts every time it quits,
-        // and macOS reports a crash for an entirely ordinary exit.
-        //
-        // Already fixed upstream, not yet published: platforms/MacOS/src/MacOS/Platform/
-        // WindowCloseCoordinator.cs routes the close through IElementHandler.VirtualView, which is
-        // nullable and safe for late native callbacks, and tests/MacOS.Tests/
-        // WindowCloseCoordinatorTests.cs pins that behaviour. Delete this entry once a build carrying
-        // it is published - check for the string "WindowCloseCoordinator" in
-        // Microsoft.Maui.Platforms.MacOS.dll.
-        InvalidOperationException { Message: "VirtualView cannot be null here" } =>
-            "WindowHandler.OnWindowClosed reads VirtualView after the handler is disconnected",
+            // AppKit closes the window as part of termination, and that close notification arrives after
+            // MAUI has already disconnected the window handler. WindowHandler.OnWindowClosed then reads
+            // VirtualView through the generic ElementHandler<,> getter, which throws for a disconnected
+            // handler instead of returning null. Without this entry the app aborts every time it quits,
+            // and macOS reports a crash for an entirely ordinary exit.
+            //
+            // Already fixed upstream, not yet published: platforms/MacOS/src/MacOS/Platform/
+            // WindowCloseCoordinator.cs routes the close through IElementHandler.VirtualView, which is
+            // nullable and safe for late native callbacks, and tests/MacOS.Tests/
+            // WindowCloseCoordinatorTests.cs pins that behaviour. Delete this entry once a build carrying
+            // it is published - check for the string "WindowCloseCoordinator" in
+            // Microsoft.Maui.Platforms.MacOS.dll.
+            InvalidOperationException { Message: "VirtualView cannot be null here" } =>
+                "WindowHandler.OnWindowClosed reads VirtualView after the handler is disconnected",
 
-        _ => null,
-    };
+            _ => null,
+        };
+    }
 }

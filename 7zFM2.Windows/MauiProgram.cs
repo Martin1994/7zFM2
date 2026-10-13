@@ -1,3 +1,5 @@
+using SevenZip.FileManager2.Platform;
+
 namespace SevenZip.FileManager2.Windows;
 
 public static class MauiProgram
@@ -9,6 +11,8 @@ public static class MauiProgram
         builder.UseMauiApp<App>();
 
         App.ConfigureServices(builder.Services);
+        builder.Services.AddSingleton<IDialogPresenter, WindowsDialogPresenter>();
+        builder.Services.AddSingleton<IPlatformWorkarounds, WindowsPlatformWorkarounds>();
 
         // TODO: Mica backdrop. MAUI has no cross-platform API for window composition, so this needs
         // a Windows-side platform hook - a WindowHandler customization over MauiWinUIWindow.

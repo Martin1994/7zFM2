@@ -5,6 +5,7 @@ namespace SevenZip.FileManager2.ViewModels;
 public partial class FileManagerViewModel : ObservableObject
 {
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(TestCommand))]
     private IItemViewModel[] _items = Array.Empty<IItemViewModel>();
 
     [ObservableProperty]
@@ -18,6 +19,7 @@ public partial class FileManagerViewModel : ObservableObject
     private IItemViewModel? _selectedItem = null;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(TestCommand))]
     private IReadOnlyList<IItemViewModel> _selectedItems = Array.Empty<IItemViewModel>();
 
     [ObservableProperty]
@@ -90,22 +92,26 @@ public partial class FileManagerViewModel : ObservableObject
         ReturnAction();
     }
 
-    [RelayCommand]
+    // Only the members of the archive being browsed can be tested, so a directory listing has
+    // nothing to offer and the button is disabled there. The original threw instead, from a command
+    // handler that is reached from AppKit - which is a crash, not an error message.
+    private bool CanTest() => SelectedItems.OfType<SevenZipItemViewModel>().Any();
+
+    [RelayCommand(CanExecute = nameof(CanTest))]
     public void Test()
     {
-        if (SelectedItems.Count == 0) throw new InvalidOperationException("Must select at least one node");
         // TODO: get current node after tracking all parent nodes
 
         // TODO: test archive from fs
-        var archive = SelectedItems.Cast<SevenZipItemViewModel>().First().Archive;
-        var selectedNodes = SelectedItems.Cast<SevenZipItemViewModel>().Select(vm => vm.Node);
+        var nodes = SelectedItems.OfType<SevenZipItemViewModel>().ToArray();
+        if (nodes.Length == 0)
+        {
+            return;
+        }
 
         var extract = new ArchiveExtractViewModel();
-        extract.Extract(archive, selectedNodes.ToArray());
+        extract.Extract(nodes[0].Archive, nodes.Select(vm => vm.Node).ToArray());
 
-        if (ExtractStarted != null)
-        {
-            ExtractStarted(extract);
-        }
+        ExtractStarted?.Invoke(extract);
     }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SevenZip.FileManager2.Controls.PropertyBlock"
+    x:Name="_root"
+    x:DataType="local:PropertyBlock"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SevenZip.FileManager2.Controls">
+
+    <!--
+        The inner tree binds against this control, not against whatever BindingContext its consumer
+        gives it. Writing {Binding Title, Source={x:Reference _root}} instead would read better but
+        is not a compiled binding (XC0025), so the BindingContext is repointed here and the bindings
+        stay plain.
+    -->
+    <VerticalStackLayout BindingContext="{x:Reference _root}">
+        <Label FontSize="11" Text="{Binding Title}" />
+        <Label FontSize="16" Text="{Binding Text}" />
+    </VerticalStackLayout>
+</ContentView>

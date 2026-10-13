@@ -15,9 +15,14 @@ public class App : Application
     /// The container is the one built in each head's <c>MauiProgram</c>; MAUI hands it back through
     /// <see cref="IPlatformApplication"/>.
     /// </remarks>
-    public static IServiceProvider Services =>
-        IPlatformApplication.Current?.Services
-            ?? throw new InvalidOperationException("The MAUI service provider is not available yet.");
+public static IServiceProvider Services
+    {
+        get
+        {
+            return IPlatformApplication.Current?.Services
+                ?? throw new InvalidOperationException("The MAUI service provider is not available yet.");
+        }
+    }
 
     public App()
     {

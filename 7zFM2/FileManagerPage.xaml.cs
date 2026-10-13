@@ -1,3 +1,5 @@
+using SevenZip.FileManager2.Controls;
+using SevenZip.FileManager2.Platform;
 using SevenZip.FileManager2.ViewModels;
 
 namespace SevenZip.FileManager2;
@@ -5,19 +7,23 @@ namespace SevenZip.FileManager2;
 public sealed partial class FileManagerPage : ContentPage
 {
     private readonly FileManagerViewModel _vm;
+    private readonly IDialogPresenter _dialogs;
+    private readonly IPlatformWorkarounds _workarounds;
 
     public FileManagerPage()
     {
         InitializeComponent();
 
         _vm = App.Services.GetRequiredService<FileManagerViewModel>();
+        _dialogs = App.Services.GetRequiredService<IDialogPresenter>();
+        _workarounds = App.Services.GetRequiredService<IPlatformWorkarounds>();
         BindingContext = _vm;
 
         FileList.ItemActivated += OnItemActivated;
+        _vm.ExtractStarted += OnExtractStarted;
 
-        // TODO: the extract dialog is not ported yet - MAUI has no content-dialog primitive, and it
-        // should come back as a separate window rather than an in-page overlay, so _vm.ExtractStarted
-        // currently has no subscriber.
+        // The first layout is when a backend defect tends to show, and it is not a single event.
+        SizeChanged += (_, _) => _workarounds.OnPageLayout(this);
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -33,6 +39,15 @@ public sealed partial class FileManagerPage : ContentPage
         {
             FileList.ReportTap(item);
         }
+    }
+
+    // The Uno original used a ContentDialog. Each head presents this its own way - on macOS as a
+    // sheet attached to the main window, which is also what keeps that window out of reach for as
+    // long as the run lasts.
+    private async void OnExtractStarted(ArchiveExtractViewModel extract)
+    {
+        var dialog = new ArchiveExtractDialog { BindingContext = extract };
+        await _dialogs.ShowAsync(this, dialog);
     }
 
     private async void OnItemActivated(object? sender, EventArgs e)

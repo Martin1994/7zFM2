@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SevenZip.FileManager2.Controls.ArchiveExtractDialog"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SevenZip.FileManager2.Controls"
+    xmlns:vm="clr-namespace:SevenZip.FileManager2.ViewModels"
+    x:DataType="vm:ArchiveExtractViewModel"
+    Title="{Binding Mode}">
+
+    <!--
+        No fixed width, so the sheet is sized by its content and follows it as the numbers, the path
+        and the status grow. MaximumWidthRequest is the only brake: past it the path truncates
+        instead of the sheet running off the screen.
+    -->
+    <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="560">
+
+        <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="24">
+            <local:PropertyBlock Grid.Column="0" Title="Total Size" Text="{Binding TotalBytes, Converter={StaticResource ByteSize}}" />
+            <local:PropertyBlock Grid.Column="1" Title="Processed Files" Text="{Binding ProcessedItems, StringFormat='{0:N0}'}" />
+            <local:PropertyBlock Grid.Column="2" Title="Compression Ratio" Text="{Binding Ratio, StringFormat='{0:P2}'}" />
+        </Grid>
+
+        <Label FontSize="11" LineBreakMode="TailTruncation" Text="{Binding CurrentFilePath}" />
+
+        <ProgressBar Progress="{Binding Progress}" />
+
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" FontSize="11" Text="{Binding Status}" />
+            <Label Grid.Column="1" FontSize="11" Text="{Binding Progress, StringFormat='{0:P2}'}" />
+        </Grid>
+
+        <Button Text="Ok" HorizontalOptions="End" Clicked="OnOk" />
+    </VerticalStackLayout>
+</ContentPage>

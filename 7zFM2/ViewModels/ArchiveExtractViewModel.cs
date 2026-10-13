@@ -11,9 +11,6 @@ public partial class ArchiveExtractViewModel : ObservableObject
     private double _progress;
 
     [ObservableProperty]
-    private string _progressPercentage = "";
-
-    [ObservableProperty]
     private double _ratio;
 
     [ObservableProperty]
@@ -126,8 +123,7 @@ file class ArchiveExtractCallback : IArchiveExtractCallback, ICompressProgressIn
             {
                 double progress = ClampRatio((double)_completed / _total);
 
-                _vm.Progress = progress * 100;
-                _vm.ProgressPercentage = progress.ToString("P2");
+                _vm.Progress = progress;
                 _vm.Ratio = ClampRatio((double)_completedIn / _completedOut);
                 _vm.ProcessedItems = _items;
 

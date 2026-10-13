@@ -1,6 +1,7 @@
 // MAUI's implicit usings bring in System.Collections.Generic but not System.Collections, so a bare
 // "IEnumerable" would resolve to the generic type.
 using System.Collections;
+using CommunityToolkit.Maui;
 
 namespace SevenZip.FileManager2.Controls;
 
@@ -25,7 +26,7 @@ namespace SevenZip.FileManager2.Controls;
 /// this type means that can be swapped without touching the page.
 /// </para>
 /// </remarks>
-public class DataTable : ContentView
+public partial class DataTable : ContentView
 {
     private readonly CollectionView _list = new();
 
@@ -56,55 +57,45 @@ public class DataTable : ContentView
     /// </remarks>
     public static readonly TimeSpan ActivationInterval = TimeSpan.FromMilliseconds(500);
 
-    public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(
-        nameof(ItemsSource),
-        typeof(IEnumerable),
-        typeof(DataTable),
-        propertyChanged: (bindable, _, value) => ((DataTable)bindable)._list.ItemsSource = (IEnumerable?)value);
+    /// <summary>
+    /// The items to render.
+    /// </summary>
+    [BindableProperty(PropertyChangedMethodName = nameof(OnItemsSourceChanged))]
+    public partial IEnumerable? ItemsSource { get; set; }
 
-    public IEnumerable? ItemsSource
+    /// <summary>
+    /// The row template.
+    /// </summary>
+    [BindableProperty(PropertyChangedMethodName = nameof(OnItemTemplateChanged))]
+    public partial DataTemplate? ItemTemplate { get; set; }
+
+    /// <summary>
+    /// Single or multiple selection.
+    /// </summary>
+    [BindableProperty(PropertyChangedMethodName = nameof(OnSelectionModeChanged))]
+    public partial SelectionMode SelectionMode { get; set; } = SelectionMode.Single;
+
+    /// <summary>
+    /// The selected row.
+    /// </summary>
+    [BindableProperty(DefaultBindingMode = BindingMode.TwoWay, PropertyChangedMethodName = nameof(OnSelectedItemChanged))]
+    public partial object? SelectedItem { get; set; }
+
+    // The property-changed hooks have to be static and take (BindableObject, object, object) - that is
+    // the signature the generated BindableProperty.Create call needs.
+    private static void OnItemsSourceChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        get => (IEnumerable?)GetValue(ItemsSourceProperty);
-        set => SetValue(ItemsSourceProperty, value);
+        ((DataTable)bindable)._list.ItemsSource = (IEnumerable?)newValue;
     }
 
-    public static readonly BindableProperty ItemTemplateProperty = BindableProperty.Create(
-        nameof(ItemTemplate),
-        typeof(DataTemplate),
-        typeof(DataTable),
-        propertyChanged: (bindable, _, value) => ((DataTable)bindable)._list.ItemTemplate = (DataTemplate?)value);
-
-    public DataTemplate? ItemTemplate
+    private static void OnItemTemplateChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        get => (DataTemplate?)GetValue(ItemTemplateProperty);
-        set => SetValue(ItemTemplateProperty, value);
+        ((DataTable)bindable)._list.ItemTemplate = (DataTemplate?)newValue;
     }
 
-    public static readonly BindableProperty SelectionModeProperty = BindableProperty.Create(
-        nameof(SelectionMode),
-        typeof(SelectionMode),
-        typeof(DataTable),
-        SelectionMode.Single,
-        propertyChanged: (bindable, _, value) => ((DataTable)bindable)._list.SelectionMode = (SelectionMode)value);
-
-    public SelectionMode SelectionMode
+    private static void OnSelectionModeChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        get => (SelectionMode)GetValue(SelectionModeProperty);
-        set => SetValue(SelectionModeProperty, value);
-    }
-
-    public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(
-        nameof(SelectedItem),
-        typeof(object),
-        typeof(DataTable),
-        null,
-        BindingMode.TwoWay,
-        propertyChanged: OnSelectedItemChanged);
-
-    public object? SelectedItem
-    {
-        get => GetValue(SelectedItemProperty);
-        set => SetValue(SelectedItemProperty, value);
+        ((DataTable)bindable)._list.SelectionMode = (SelectionMode)newValue;
     }
 
     private static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
