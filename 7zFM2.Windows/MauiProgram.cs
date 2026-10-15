@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui;
 using SevenZip.FileManager2.Platform;
 
 namespace SevenZip.FileManager2.Windows;

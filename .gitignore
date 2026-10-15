@@ -9,3 +9,4 @@
 *.binlog
 bin
 obj
+*.proj.Backup.tmp
