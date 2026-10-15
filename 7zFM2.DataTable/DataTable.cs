@@ -1,34 +1,46 @@
 // MAUI's implicit usings bring in System.Collections.Generic but not System.Collections, so a bare
 // "IEnumerable" would resolve to the generic type.
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using CommunityToolkit.Maui;
 
 namespace SevenZip.FileManager2.Controls;
 
 /// <summary>
-/// Virtualized row surface for the file manager.
+/// Displays a collection of items in a virtualized table with column headers and resizable columns.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Hand-rolled: the available DataTable/DataGrid controls are built on UI-framework types
-/// (<c>Panel</c>, <c>ContentControl</c>, <c>ContentSizer</c>, <c>ItemsStackPanel</c>) that MAUI does
-/// not have, and CommunityToolkit.Maui ships no grid at all.
+/// A general-purpose MAUI table control, conceptually similar to the WinUI CommunityToolkit Labs
+/// DataTable, without a dependency on WinUI or application-specific data types. Each item in
+/// <see cref="ItemsSource"/> represents a row. <see cref="Columns"/> defines the headers, widths,
+/// and cell presentation; <see cref="DataTableColumn.CellTemplate"/> supports custom cell content.
 /// </para>
 /// <para>
-/// <b>Step 1 scope:</b> a plain, virtualized filename list. No header, no columns, no interaction
-/// beyond selection.
+/// Uses <see cref="CollectionView"/>, MAUI's recommended replacement for the deprecated ListView,
+/// to present and virtualize rows. Each realized list item contains the cells for one row, with
+/// widths shared by the header and all rows. Virtualization applies to rows, not individual columns;
+/// its behavior is provided by the platform's CollectionView handler.
 /// </para>
 /// <para>
-/// This type is deliberately the seam between the app and whatever eventually renders the rows.
-/// Per-row cost in MAUI is dominated by control count - measured at roughly 600 us per extra control
-/// per row, which puts a three-control row at about 18 fps during a full-viewport scroll - so the
-/// likely end state is one hand-drawn surface that owns its own scrolling. Keeping the app behind
-/// this type means that can be swapped without touching the page.
+/// The header remains fixed during vertical scrolling. A shared horizontal scroll container keeps
+/// headers and cells aligned when the columns exceed the viewport width. Place the control in a
+/// container with a bounded height so the row presenter retains a finite virtualization viewport.
 /// </para>
 /// </remarks>
 public partial class DataTable : ContentView
 {
     private readonly CollectionView _list = new();
+    private readonly Grid _surface;
+    private readonly ScrollView _horizontalScroll;
+    private readonly DataTableRow _header;
+    private readonly List<WeakReference<DataTableRow>> _rows = [];
+    private readonly HashSet<DataTableColumn> _observedColumns = [];
+    private bool _updatingGeometry;
+
+    public ObservableCollection<DataTableColumn> Columns { get; } = [];
 
     public DataTable()
     {
@@ -37,7 +49,159 @@ public partial class DataTable : ContentView
         // each item view as it is created - so the mode has to be right before the first reload.
         _list.SelectionMode = SelectionMode;
         _list.SelectionChanged += OnListSelectionChanged;
-        Content = _list;
+        _list.ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical) { ItemSpacing = 0 };
+        _list.ItemSizingStrategy = ItemSizingStrategy.MeasureFirstItem;
+        _list.HorizontalScrollBarVisibility = ScrollBarVisibility.Never;
+        _list.ItemTemplate = new DataTemplate(CreateRow);
+
+        _header = new DataTableRow(this, isHeader: true);
+        _header.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#F0F0F0"), Color.FromArgb("#303030"));
+        _surface = new Grid
+        {
+            RowSpacing = 0,
+            RowDefinitions = { new RowDefinition(GridLength.Auto), new RowDefinition(GridLength.Star) },
+        };
+        _surface.Children.Add(_header);
+        Grid.SetRow(_list, 1);
+        _surface.Children.Add(_list);
+        _horizontalScroll = new ScrollView
+        {
+            Orientation = ScrollOrientation.Horizontal,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Default,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Never,
+            Content = _surface,
+        };
+        Content = _horizontalScroll;
+        Columns.CollectionChanged += OnColumnsChanged;
+        _horizontalScroll.SizeChanged += OnViewportSizeChanged;
+        UpdateGeometry();
+    }
+
+    // Uniform, fixed heights keep the virtualizing handler's item-size cache valid. Runtime height
+    // changes are not supported by the pinned AppKit handler without reloading the entire list.
+    public double RowHeight { get; } = 28d;
+
+    public double HeaderHeight { get; } = 32d;
+
+    private object CreateRow()
+    {
+        var row = new DataTableRow(this, isHeader: false);
+        _rows.RemoveAll(reference =>
+        {
+            return !reference.TryGetTarget(out _);
+        });
+        _rows.Add(new WeakReference<DataTableRow>(row));
+        return row;
+    }
+
+    private void OnColumnsChanged(object? sender, NotifyCollectionChangedEventArgs args)
+    {
+        // Reconcile rather than only looking at OldItems: Clear() raises Reset without OldItems.
+        foreach (var column in _observedColumns)
+        {
+            column.PropertyChanged -= OnColumnPropertyChanged;
+        }
+
+        _observedColumns.Clear();
+        foreach (var column in Columns)
+        {
+            if (_observedColumns.Add(column))
+            {
+                column.PropertyChanged += OnColumnPropertyChanged;
+            }
+        }
+
+        RebuildCells();
+    }
+
+    private void OnColumnPropertyChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName is nameof(DataTableColumn.Width) or nameof(DataTableColumn.MinWidth)
+            or nameof(DataTableColumn.MaxWidth))
+        {
+            UpdateGeometry();
+        }
+        else
+        {
+            RebuildCells();
+        }
+    }
+
+    private void RebuildCells()
+    {
+        _header.RebuildCells();
+        VisitRows(row =>
+        {
+            row.RebuildCells();
+        });
+        UpdateGeometry();
+    }
+
+    private void VisitRows(Action<DataTableRow> action)
+    {
+        for (var i = _rows.Count - 1; i >= 0; i--)
+        {
+            if (_rows[i].TryGetTarget(out var row))
+            {
+                action(row);
+            }
+            else
+            {
+                _rows.RemoveAt(i);
+            }
+        }
+    }
+
+    private void OnViewportSizeChanged(object? sender, EventArgs args)
+    {
+        UpdateGeometry();
+    }
+
+    private void UpdateGeometry()
+    {
+        if (_updatingGeometry)
+        {
+            return;
+        }
+
+        _updatingGeometry = true;
+        try
+        {
+            _header.IsVisible = Columns.Count > 0;
+            var columnsWidth = Columns.Sum(column =>
+            {
+                return column.ActualWidth;
+            });
+            _surface.WidthRequest = Math.Max(columnsWidth, Math.Max(0, _horizontalScroll.Width));
+            _surface.HeightRequest = Math.Max(0, _horizontalScroll.Height);
+
+            if (_horizontalScroll.Handler is not null && _horizontalScroll.Width > 0 && _horizontalScroll.Height > 0)
+            {
+                // Updating WidthRequest alone does not schedule AppKit layout. Arrange at the
+                // existing viewport to refresh the horizontal document extent, not the item source.
+                _horizontalScroll.Handler.PlatformArrange(_horizontalScroll.Frame);
+                var surface = (Microsoft.Maui.ILayout)_surface;
+                surface.CrossPlatformMeasure(_surface.WidthRequest, _surface.HeightRequest);
+                surface.CrossPlatformArrange(new Rect(0, 0, _surface.WidthRequest, _surface.HeightRequest));
+                _list.Handler?.PlatformArrange(_list.Frame);
+            }
+
+            _header.RefreshGeometry();
+            var platform = Handler?.MauiContext?.Services.GetService<IDataTablePlatformLayout>();
+            VisitRows(row =>
+            {
+                if (_list.Width > 0)
+                {
+                    platform?.RefreshRow(row, _list.Width);
+                }
+
+                row.RefreshGeometry();
+            });
+        }
+        finally
+        {
+            _updatingGeometry = false;
+        }
     }
 
     public event EventHandler<SelectionChangedEventArgs>? SelectionChanged;
@@ -64,7 +228,7 @@ public partial class DataTable : ContentView
     public partial IEnumerable? ItemsSource { get; set; }
 
     /// <summary>
-    /// The row template.
+    /// Optional legacy row template. Leave unset to generate cells from Columns.
     /// </summary>
     [BindableProperty(PropertyChangedMethodName = nameof(OnItemTemplateChanged))]
     public partial DataTemplate? ItemTemplate { get; set; }
@@ -85,12 +249,19 @@ public partial class DataTable : ContentView
     // the signature the generated BindableProperty.Create call needs.
     private static void OnItemsSourceChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        ((DataTable)bindable)._list.ItemsSource = (IEnumerable?)newValue;
+        var table = (DataTable)bindable;
+        table._lastTappedItem = null;
+        table._lastTapTicks = 0;
+        table._list.SelectedItem = null;
+        table._list.SelectedItems.Clear();
+        table.SelectedItem = null;
+        table._list.ItemsSource = (IEnumerable?)newValue;
     }
 
     private static void OnItemTemplateChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        ((DataTable)bindable)._list.ItemTemplate = (DataTemplate?)newValue;
+        var table = (DataTable)bindable;
+        table._list.ItemTemplate = (DataTemplate?)newValue ?? new DataTemplate(table.CreateRow);
     }
 
     private static void OnSelectionModeChanged(BindableObject bindable, object oldValue, object newValue)
@@ -103,7 +274,7 @@ public partial class DataTable : ContentView
         var table = (DataTable)bindable;
 
         // Guards the round-trip that OnListSelectionChanged starts.
-        if (!ReferenceEquals(table._list.SelectedItem, newValue))
+        if (table.SelectionMode == SelectionMode.Single && !ReferenceEquals(table._list.SelectedItem, newValue))
         {
             table._list.SelectedItem = newValue;
         }
@@ -126,6 +297,11 @@ public partial class DataTable : ContentView
     /// </remarks>
     public void ReportTap(object? item)
     {
+        if (item is null)
+        {
+            return;
+        }
+
         var now = Environment.TickCount64;
         var isActivation = ReferenceEquals(item, _lastTappedItem)
             && now - _lastTapTicks <= (long)ActivationInterval.TotalMilliseconds;
@@ -135,6 +311,13 @@ public partial class DataTable : ContentView
 
         if (isActivation)
         {
+            // The native selection recognizer may run after ours. Opening must target the row
+            // that was activated, not the previously selected item.
+            if (SelectionMode == SelectionMode.Single)
+            {
+                SelectedItem = item;
+            }
+
             ItemActivated?.Invoke(this, EventArgs.Empty);
         }
     }

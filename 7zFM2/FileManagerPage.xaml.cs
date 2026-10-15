@@ -32,15 +32,6 @@ public sealed partial class FileManagerPage : ContentPage
         _vm.SelectedItems = e.CurrentSelection.Cast<IItemViewModel>().ToArray();
     }
 
-    private void OnItemTapped(object? sender, TappedEventArgs e)
-    {
-        // The row template reports every tap; DataTable decides when two of them make an activation.
-        if ((sender as VisualElement)?.BindingContext is IItemViewModel item)
-        {
-            FileList.ReportTap(item);
-        }
-    }
-
     // The Uno original used a ContentDialog. Each head presents this its own way - on macOS as a
     // sheet attached to the main window, which is also what keeps that window out of reach for as
     // long as the run lasts.

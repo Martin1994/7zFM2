@@ -55,6 +55,7 @@ public static class MauiProgram
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, MacOSDialogPresenter>();
         builder.Services.AddSingleton<IPlatformWorkarounds, MacOSPlatformWorkarounds>();
+        builder.Services.AddSingleton<Controls.IDataTablePlatformLayout, MacOSDataTablePlatformLayout>();
 
         Console.WriteLine($"7-Zip: {SevenZipLibrary.Initialize()}");
 

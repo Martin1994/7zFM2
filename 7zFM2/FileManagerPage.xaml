@@ -50,33 +50,92 @@
                    Text="{Binding Name}" />
         </Grid>
 
+        <!-- Selection mode is currently Single since the default Multiple mode doesn't fit the need
+        of a file table. -->
         <dt:DataTable
             x:Name="FileList"
             Grid.Row="3"
             ItemsSource="{Binding Items}"
-            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+            SelectedItem="{Binding SelectedItem, Mode=OneWayToSource}"
             SelectionMode="Single"
             SelectionChanged="OnSelectionChanged">
-            <dt:DataTable.ItemTemplate>
-                <DataTemplate x:DataType="vm:IItemViewModel">
-                    <!--
-                        Only the name for now. The remaining columns, the header and the shared
-                        column widths are the next slice of work on DataTable.
-                    -->
-                    <Label Padding="0,0,12,0" FontSize="13" Text="{Binding Name}">
-                        <Label.GestureRecognizers>
-                            <!--
-                                A *single* tap, deliberately: DataTable pairs two of them into a
-                                double click itself (see DataTable.ReportTap). Asking for
-                                NumberOfTapsRequired="2" here leaves the recognizer holding the
-                                first click, which stops the row from being selectable at all on
-                                the AppKit backend.
-                            -->
-                            <TapGestureRecognizer Tapped="OnItemTapped" />
-                        </Label.GestureRecognizers>
-                    </Label>
-                </DataTemplate>
-            </dt:DataTable.ItemTemplate>
+            <dt:DataTable.Resources>
+                <Style x:Key="FileCellLabel" TargetType="Label">
+                    <Setter Property="FontSize" Value="13" />
+                    <Setter Property="Padding" Value="8,0,12,0" />
+                    <Setter Property="VerticalTextAlignment" Value="Center" />
+                    <Setter Property="LineBreakMode" Value="TailTruncation" />
+                    <Setter Property="MaxLines" Value="1" />
+                    <Setter Property="InputTransparent" Value="True" />
+                    <Setter Property="TextColor"
+                            Value="{AppThemeBinding Light=#202020, Dark=#EEEEEE}" />
+                </Style>
+            </dt:DataTable.Resources>
+
+            <dt:DataTable.Columns>
+                <!-- Each template binds to the row item, not the page's FileManagerViewModel. -->
+                <dt:DataTableColumn Header="Name" Width="300" MinWidth="120">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}" Text="{Binding Name}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Size" Width="110" MinWidth="70" TextAlignment="End">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}"
+                                   HorizontalTextAlignment="End"
+                                   Text="{Binding Size}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Modified" Width="180" MinWidth="100">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}" Text="{Binding Modified}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Created" Width="180" MinWidth="100">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}" Text="{Binding Created}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Comment" Width="220" MinWidth="80">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}" Text="{Binding Comment}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Folders" Width="90" MinWidth="60" TextAlignment="End">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}"
+                                   HorizontalTextAlignment="End"
+                                   Text="{Binding Folders}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+
+                <dt:DataTableColumn Header="Files" Width="90" MinWidth="60" TextAlignment="End">
+                    <dt:DataTableColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:IItemViewModel">
+                            <Label Style="{StaticResource FileCellLabel}"
+                                   HorizontalTextAlignment="End"
+                                   Text="{Binding Files}" />
+                        </DataTemplate>
+                    </dt:DataTableColumn.CellTemplate>
+                </dt:DataTableColumn>
+            </dt:DataTable.Columns>
         </dt:DataTable>
 
         <HorizontalStackLayout Grid.Row="4" Padding="20,5">
