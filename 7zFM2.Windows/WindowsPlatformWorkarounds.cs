@@ -7,7 +7,7 @@ namespace SevenZip.FileManager2.Windows;
 /// </summary>
 internal sealed class WindowsPlatformWorkarounds : IPlatformWorkarounds
 {
-    public void OnPageLayout(Page page)
+    public void OnPageCreated(Page page)
     {
     }
 }

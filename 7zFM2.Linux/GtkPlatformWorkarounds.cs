@@ -7,7 +7,7 @@ namespace SevenZip.FileManager2.Linux;
 /// </summary>
 internal sealed class GtkPlatformWorkarounds : IPlatformWorkarounds
 {
-    public void OnPageLayout(Page page)
+    public void OnPageCreated(Page page)
     {
     }
 }

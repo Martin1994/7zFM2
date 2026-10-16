@@ -22,8 +22,7 @@ public sealed partial class FileManagerPage : ContentPage
         FileList.ItemActivated += OnItemActivated;
         _vm.ExtractStarted += OnExtractStarted;
 
-        // The first layout is when a backend defect tends to show, and it is not a single event.
-        SizeChanged += (_, _) => _workarounds.OnPageLayout(this);
+        _workarounds.OnPageCreated(this);
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
