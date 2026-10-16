@@ -12,6 +12,7 @@
 
 		<ApplicationTitle>7zFM2</ApplicationTitle>
 		<ApplicationId>SevenZip.FileManager2</ApplicationId>
+		<UseMaui>true</UseMaui>
 	</PropertyGroup>
 
 	<ItemGroup>
