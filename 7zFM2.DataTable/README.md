@@ -42,6 +42,28 @@ The application uses replaced snapshot arrays; in-place observable-source select
 is still dependent on the platform handler. The legacy whole-row `ItemTemplate` continues to
 work, but such templates own their layout and must call `ReportTap` themselves.
 
+## Native row input
+
+Heads can register `IDataTablePlatformInput` to replace the generated row's MAUI tap source.
+The row attaches it after its handler is available and disposes it when that handler changes.
+While attached, the MAUI tap recognizer is removed to prevent double reporting. Other heads
+continue using the existing MAUI gesture. Both sources call the same shared `ReportTap` path,
+using the item from the click rather than a cached item from row creation.
+
+`GtkDataTablePlatformInput` attaches a primary-button `Gtk.GestureClick` to the native item
+container when mapped, and removes it when unmapped. It runs in the capture phase before
+selection can replace the row, and groups with the native item click gesture so selection's
+claim does not suppress the second release. It never claims/denies sequences itself.
+
+The adapter rejects stopped sequences and releases outside the row, reports both clicks,
+and leaves selection to the native CollectionView. Reporting uses a GTK idle callback (the
+pinned dispatcher can run inline). A completed click survives selection-induced row unmapping,
+but changing the table's ItemsSource invalidates old reports. Disposal and rebinding cancel
+pending reports; press/release across different bound items is rejected. Headers are excluded.
+
+This is a row-click bridge, not a complete file-manager input controller. Ctrl/Shift selection,
+keyboard navigation, rubber-band selection and a GTK header-resize fix remain separate work.
+
 ## AppKit compatibility
 
 `MacOSDataTablePlatformLayout` is registered as `IDataTablePlatformLayout` in the macOS head.
@@ -59,8 +81,12 @@ is implied by the bounded view count.
 ## Validation status and limitations
 
 A formal automated test suite is deferred. Development-time AppKit checks are not a committed
-test suite or evidence of cross-platform correctness. macOS and Linux heads have been built;
-Windows and Linux interactive behavior still requires validation on those operating systems.
+test suite or evidence of cross-platform correctness. Linux and Windows heads build with the
+input adapter. A development-time WSLg/X11 probe using native mouse events verified single-click
+selection, one activation per double-click, right-click/header exclusion, source replacement,
+drag rejection, unmap/remap without duplicate subscriptions, and stale-source report rejection.
+Wayland and full-application interactive behavior still require validation; these focused checks
+do not constitute a cross-platform interaction test suite.
 
 Bounded realized-row counts verify virtualization, not interaction latency or frame rate.
 Scrolling and column resizing should be evaluated in Release builds, including sustained input

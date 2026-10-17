@@ -250,6 +250,7 @@ public partial class DataTable : ContentView
     private static void OnItemsSourceChanged(BindableObject bindable, object oldValue, object newValue)
     {
         var table = (DataTable)bindable;
+        table._inputVersion++;
         table._lastTappedItem = null;
         table._lastTapTicks = 0;
         table._list.SelectedItem = null;
@@ -282,10 +283,25 @@ public partial class DataTable : ContentView
 
     private object? _lastTappedItem;
     private long _lastTapTicks;
+    private long _inputVersion;
+
+    internal Action<object?> CreateTapReporter()
+    {
+        var version = _inputVersion;
+        return item =>
+        {
+            // Native selection can replace the row before an already-completed click is
+            // delivered. Keep that click, but never replay it after navigation changes the data.
+            if (version == _inputVersion)
+            {
+                ReportTap(item);
+            }
+        };
+    }
 
     /// <summary>
-    /// Records a tap on <paramref name="item"/>, reported by the row template's
-    /// <c>TapGestureRecognizer</c>, and raises <see cref="ItemActivated"/> when the tap completes a
+    /// Records a tap on <paramref name="item"/>, reported by the row template's MAUI gesture
+    /// or native input adapter, and raises <see cref="ItemActivated"/> when the tap completes a
     /// double tap.
     /// </summary>
     /// <remarks>

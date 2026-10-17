@@ -10,6 +10,8 @@ internal sealed class DataTableRow : Layout
 {
     private readonly DataTable _table;
     private readonly bool _isHeader;
+    private readonly TapGestureRecognizer? _tapRecognizer;
+    private IDisposable? _platformInput;
     private Rect _arrangedBounds;
 
     internal DataTableRow(DataTable table, bool isHeader)
@@ -22,12 +24,55 @@ internal sealed class DataTableRow : Layout
 
         if (!isHeader)
         {
-            var tap = new TapGestureRecognizer();
-            tap.Tapped += OnTapped;
-            GestureRecognizers.Add(tap);
+            _tapRecognizer = new TapGestureRecognizer();
+            _tapRecognizer.Tapped += OnTapped;
+            GestureRecognizers.Add(_tapRecognizer);
         }
 
         RebuildCells();
+    }
+
+    protected override void OnHandlerChanging(HandlerChangingEventArgs args)
+    {
+        _platformInput?.Dispose();
+        _platformInput = null;
+        base.OnHandlerChanging(args);
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        UpdateInput();
+    }
+
+    protected override void OnBindingContextChanged()
+    {
+        base.OnBindingContextChanged();
+        if (Handler is not null)
+        {
+            UpdateInput();
+        }
+    }
+
+    private void UpdateInput()
+    {
+        if (_tapRecognizer is null)
+        {
+            return;
+        }
+
+        _platformInput?.Dispose();
+        _platformInput = Handler?.MauiContext?.Services.GetService<IDataTablePlatformInput>()
+            ?.AttachRow(this, _table.CreateTapReporter());
+
+        if (_platformInput is not null)
+        {
+            GestureRecognizers.Remove(_tapRecognizer);
+        }
+        else if (!GestureRecognizers.Contains(_tapRecognizer))
+        {
+            GestureRecognizers.Add(_tapRecognizer);
+        }
     }
 
     internal void RebuildCells()
@@ -124,6 +169,11 @@ internal sealed class DataTableRow : Layout
     }
 
     private void OnTapped(object? sender, TappedEventArgs args)
+    {
+        ReportRowTap();
+    }
+
+    private void ReportRowTap()
     {
         _table.ReportTap(BindingContext);
     }
