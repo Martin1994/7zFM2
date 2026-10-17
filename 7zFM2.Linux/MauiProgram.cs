@@ -16,7 +16,8 @@ public static class MauiProgram
 
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, GtkDialogPresenter>();
-        builder.Services.AddSingleton<IPlatformWorkarounds, GtkPlatformWorkarounds>();
+        // Install handler mappings before the first window starts creating its page.
+        builder.Services.AddSingleton<IPlatformWorkarounds>(new GtkPlatformWorkarounds());
 
         return builder.Build();
     }

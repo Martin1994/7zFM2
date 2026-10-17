@@ -43,11 +43,12 @@
         <!-- Path bar -->
         <Grid Grid.Row="2" Padding="4" ColumnDefinitions="Auto,*">
             <Button Grid.Column="0" Text="&#x2190;" Command="{Binding ReturnCommand}" />
-            <Entry Grid.Column="1"
+                 <Entry x:Name="PathEntry"
+                     Grid.Column="1"
                    Margin="4,0"
                    FontSize="13"
                    IsReadOnly="True"
-                   Text="{Binding Name}" />
+                   Text="{Binding Name, Mode=OneWay}" />
         </Grid>
 
         <!-- Selection mode is currently Single since the default Multiple mode doesn't fit the need
