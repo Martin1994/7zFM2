@@ -16,6 +16,7 @@ public static class MauiProgram
             .AddLinuxGtk4Essentials();
 
         App.ConfigureServices(builder.Services);
+        builder.Services.AddSingleton<IDataTablePlatformLayout, GtkDataTablePlatformLayout>();
         builder.Services.AddSingleton<IDataTablePlatformInput, GtkDataTablePlatformInput>();
         builder.Services.AddSingleton<IDialogPresenter, GtkDialogPresenter>();
         // Install handler mappings before the first window starts creating its page.

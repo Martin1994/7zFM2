@@ -197,6 +197,15 @@ internal sealed class DataTableRow : Layout
         layout.CrossPlatformArrange(_arrangedBounds);
     }
 
+    internal void RefreshHorizontalPosition()
+    {
+        if (Handler is not null && _arrangedBounds.Width > 0)
+        {
+            // Horizontal scrolling changes positions only; do not remeasure or reload rows.
+            ((Microsoft.Maui.ILayout)this).CrossPlatformArrange(_arrangedBounds);
+        }
+    }
+
     protected override ILayoutManager CreateLayoutManager()
     {
         return new RowLayoutManager(this, _table);
@@ -223,13 +232,20 @@ internal sealed class DataTableRow : Layout
                 width += columnWidth;
             }
 
-            return new Size(width, _row.HeightRequest);
+            // Body rows are viewports, not the full horizontal document. The header supplies
+            // the document extent; reporting it here would make the list expand off-screen.
+            var desiredWidth = !_row._isHeader && double.IsFinite(widthConstraint)
+                ? Math.Min(width, Math.Max(0, widthConstraint))
+                : width;
+            return new Size(desiredWidth, _row.HeightRequest);
         }
 
         public Size ArrangeChildren(Rect bounds)
         {
             _row._arrangedBounds = bounds;
-            var x = bounds.X;
+            // The header scrolls naturally with the document. The body viewport is counter-
+            // translated, so only its cells need the matching negative offset.
+            var x = bounds.X - (_row._isHeader ? 0 : _table.HorizontalOffset);
             for (var i = 0; i < _row.Children.Count; i++)
             {
                 var width = _table.Columns[i].ActualWidth;
@@ -237,7 +253,7 @@ internal sealed class DataTableRow : Layout
                 x += width;
             }
 
-            return new Size(Math.Max(bounds.Width, x - bounds.X), bounds.Height);
+            return new Size(_row._isHeader ? Math.Max(bounds.Width, x - bounds.X) : bounds.Width, bounds.Height);
         }
     }
 }

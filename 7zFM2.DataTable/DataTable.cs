@@ -39,6 +39,11 @@ public partial class DataTable : ContentView
     private readonly List<WeakReference<DataTableRow>> _rows = [];
     private readonly HashSet<DataTableColumn> _observedColumns = [];
     private bool _updatingGeometry;
+    private bool _viewportRefreshQueued;
+    private IDisposable? _viewportObserver;
+    private double _viewportWidth;
+
+    internal double HorizontalOffset { get; private set; }
 
     public ObservableCollection<DataTableColumn> Columns { get; } = [];
 
@@ -59,8 +64,11 @@ public partial class DataTable : ContentView
         _surface = new Grid
         {
             RowSpacing = 0,
+            ColumnSpacing = 0,
             RowDefinitions = { new RowDefinition(GridLength.Auto), new RowDefinition(GridLength.Star) },
+            ColumnDefinitions = { new ColumnDefinition(new GridLength(0)), new ColumnDefinition(GridLength.Star) },
         };
+        Grid.SetColumnSpan(_header, 2);
         _surface.Children.Add(_header);
         Grid.SetRow(_list, 1);
         _surface.Children.Add(_list);
@@ -74,7 +82,58 @@ public partial class DataTable : ContentView
         Content = _horizontalScroll;
         Columns.CollectionChanged += OnColumnsChanged;
         _horizontalScroll.SizeChanged += OnViewportSizeChanged;
+        _list.SizeChanged += OnViewportSizeChanged;
+        _horizontalScroll.Scrolled += OnHorizontalScrolled;
+        _horizontalScroll.HandlerChanged += OnScrollHandlerChanged;
+        _list.HandlerChanged += OnScrollHandlerChanged;
         UpdateGeometry();
+    }
+
+    private IDataTablePlatformLayout? PlatformLayout =>
+        Handler?.MauiContext?.Services.GetService<IDataTablePlatformLayout>();
+
+    protected override void OnHandlerChanging(HandlerChangingEventArgs args)
+    {
+        _viewportObserver?.Dispose();
+        _viewportObserver = null;
+        base.OnHandlerChanging(args);
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        OnScrollHandlerChanged(this, EventArgs.Empty);
+    }
+
+    private void OnScrollHandlerChanged(object? sender, EventArgs args)
+    {
+        _viewportObserver?.Dispose();
+        _viewportObserver = null;
+        if (_horizontalScroll.Handler is not null && _list.Handler is not null)
+        {
+            _viewportObserver = PlatformLayout?.ObserveViewport(_horizontalScroll, _list, QueueViewportRefresh);
+        }
+
+        QueueViewportRefresh();
+    }
+
+    private void QueueViewportRefresh()
+    {
+        if (_viewportRefreshQueued || Handler is null)
+        {
+            return;
+        }
+
+        _viewportRefreshQueued = true;
+        // The GTK dispatcher can execute Dispatch inline; defer native allocation notifications.
+        Dispatcher.DispatchDelayed(TimeSpan.Zero, () =>
+        {
+            _viewportRefreshQueued = false;
+            if (Handler is not null)
+            {
+                UpdateGeometry();
+            }
+        });
     }
 
     // Uniform, fixed heights keep the virtualizing handler's item-size cache valid. Runtime height
@@ -157,6 +216,37 @@ public partial class DataTable : ContentView
         UpdateGeometry();
     }
 
+    private void OnHorizontalScrolled(object? sender, ScrolledEventArgs args)
+    {
+        if (!_updatingGeometry)
+        {
+            UpdateHorizontalOffset(refreshRows: true);
+        }
+    }
+
+    private void UpdateHorizontalOffset(bool refreshRows)
+    {
+        // Legacy whole-row templates keep their original, document-wide scrolling contract.
+        var offset = ItemTemplate is null
+            ? Math.Clamp(_horizontalScroll.ScrollX, 0, Math.Max(0, _surface.WidthRequest - _viewportWidth))
+            : 0;
+        var changed = offset != HorizontalOffset;
+        HorizontalOffset = offset;
+        if (PlatformLayout is { } platform)
+        {
+            platform.SetHorizontalScrollOffset(_list, offset);
+        }
+        else
+        {
+            _list.TranslationX = offset;
+        }
+
+        if (changed && refreshRows)
+        {
+            VisitRows(row => row.RefreshHorizontalPosition());
+        }
+    }
+
     private void UpdateGeometry()
     {
         if (_updatingGeometry)
@@ -172,8 +262,23 @@ public partial class DataTable : ContentView
             {
                 return column.ActualWidth;
             });
-            _surface.WidthRequest = Math.Max(columnsWidth, Math.Max(0, _horizontalScroll.Width));
-            _surface.HeightRequest = Math.Max(0, _horizontalScroll.Height);
+            var platform = PlatformLayout;
+            var viewport = platform?.GetViewportSize(_horizontalScroll)
+                ?? new Size(_horizontalScroll.Width, _horizontalScroll.Height);
+            _viewportWidth = Math.Max(0, viewport.Width);
+            var rowViewportWidth = Math.Max(0, platform?.GetRowViewportWidth(_list) ?? _list.Width);
+            var gutter = Math.Clamp(_list.Width - rowViewportWidth, 0, _viewportWidth);
+            // The document owns column width, but the list (and its vertical scrollbar) owns only
+            // the visible viewport. Include the scrollbar gutter so the final column is reachable.
+            _surface.WidthRequest = Math.Max(columnsWidth + gutter, _viewportWidth);
+            _surface.HeightRequest = Math.Max(0, viewport.Height);
+            _list.HorizontalOptions = LayoutOptions.Fill;
+            // Let the Grid own the width, not WidthRequest: the pinned GTK list measures from
+            // its old allocation. An explicit view width makes MAUI retain/center that stale
+            // DesiredSize when growing; unconstrained Fill uses the full Grid slot instead.
+            _list.WidthRequest = -1;
+            _surface.ColumnDefinitions[0].Width = new GridLength(
+                ItemTemplate is null ? _viewportWidth : _surface.WidthRequest);
 
             if (_horizontalScroll.Handler is not null && _horizontalScroll.Width > 0 && _horizontalScroll.Height > 0)
             {
@@ -183,20 +288,26 @@ public partial class DataTable : ContentView
                 var surface = (Microsoft.Maui.ILayout)_surface;
                 surface.CrossPlatformMeasure(_surface.WidthRequest, _surface.HeightRequest);
                 surface.CrossPlatformArrange(new Rect(0, 0, _surface.WidthRequest, _surface.HeightRequest));
-                _list.Handler?.PlatformArrange(_list.Frame);
             }
 
+            UpdateHorizontalOffset(refreshRows: false);
             _header.RefreshGeometry();
-            var platform = Handler?.MauiContext?.Services.GetService<IDataTablePlatformLayout>();
+            rowViewportWidth = Math.Max(0, platform?.GetRowViewportWidth(_list) ?? _list.Width);
             VisitRows(row =>
             {
-                if (_list.Width > 0)
+                if (rowViewportWidth > 0)
                 {
-                    platform?.RefreshRow(row, _list.Width);
+                    platform?.RefreshRow(row, rowViewportWidth);
                 }
 
                 row.RefreshGeometry();
             });
+
+            var maxOffset = Math.Max(0, _surface.WidthRequest - _viewportWidth);
+            if (_horizontalScroll.ScrollX > maxOffset)
+            {
+                _ = _horizontalScroll.ScrollToAsync(maxOffset, 0, animated: false);
+            }
         }
         finally
         {
@@ -263,6 +374,7 @@ public partial class DataTable : ContentView
     {
         var table = (DataTable)bindable;
         table._list.ItemTemplate = (DataTemplate?)newValue ?? new DataTemplate(table.CreateRow);
+        table.UpdateGeometry();
     }
 
     private static void OnSelectionModeChanged(BindableObject bindable, object oldValue, object newValue)

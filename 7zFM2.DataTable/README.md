@@ -36,6 +36,20 @@ document. The content height is explicitly bounded to the viewport to preserve v
 Place the table in a finite-height container (for example, a Grid `*` row), not a vertical
 StackLayout/ScrollView with unlimited height.
 
+For generated column rows, the list occupies a fixed-width Grid column matching the table's
+visible viewport, not the full column sum. Horizontal scrolling counter-offsets that list and
+offsets its cells in the opposite direction; the header scrolls with the document as before.
+This keeps the vertical scrollbar at the viewport edge while preserving the ancestor scroll
+container and column synchronization. New rows read the current offset during layout.
+Only cell positions change on a horizontal scroll; the list is not reloaded or remeasured.
+
+`IDataTablePlatformLayout` supplies native viewport metrics, including non-overlay scrollbar
+gutters. The horizontal extent includes the vertical gutter so the last column remains fully
+reachable. GTK also needs a position-only native repair because its pinned collection handler
+bypasses the arrange cache used by `TranslationX`. Native viewport observers are disposed on
+handler changes. The legacy whole-row `ItemTemplate` retains its document-wide layout contract;
+use generated column rows for the fixed viewport behavior.
+
 Single-tap gestures on generated rows preserve native selection. Two taps on the same item
 within 500 ms raise `ItemActivated`. Replacing `ItemsSource` clears selection and tap history.
 The application uses replaced snapshot arrays; in-place observable-source selection behavior
@@ -70,8 +84,9 @@ keyboard navigation, rubber-band selection and a GTK header-resize fix remain se
 It repairs the pinned `0.1.0-preview.12.26474.1` backend, which updates native row frames without
 MAUI frames and skips existing rows when the viewport width changes. It preserves row Y/height
 and selection; it never reloads the source. Shared code explicitly refreshes the horizontal
-document extent and child layouts. The native adapter can be removed once the upstream fixes
-are present and column alignment, scrolling, and selection have been verified without it.
+document extent and child layouts. The adapter also measures the NSScrollView clip areas and
+observes their frame changes for scrollbar gutters. The row-frame repair can be removed once
+the upstream fixes are present and column alignment, scrolling, and selection are verified.
 
 Weak references track generated rows so the table does not retain every item ever scrolled past.
 This virtualizes rows, **not columns**. Each realized row still contains one view per column;
@@ -85,8 +100,11 @@ test suite or evidence of cross-platform correctness. Linux and Windows heads bu
 input adapter. A development-time WSLg/X11 probe using native mouse events verified single-click
 selection, one activation per double-click, right-click/header exclusion, source replacement,
 drag rejection, unmap/remap without duplicate subscriptions, and stale-source report rejection.
-Wayland and full-application interactive behavior still require validation; these focused checks
-do not constitute a cross-platform interaction test suite.
+The fixed-viewport layout was checked in WSLg with both Wayland and X11, including non-overlay
+scrollbars, horizontal endpoints, newly realized rows, window resizing and column shrinking.
+The mouse checks also passed after horizontal scrolling. The AppKit changes still need a macOS
+build and runtime check (the Windows validation host lacks the macos workload); full-application
+and cross-platform interaction checks are not replaced by these focused probes.
 
 Bounded realized-row counts verify virtualization, not interaction latency or frame rate.
 Scrolling and column resizing should be evaluated in Release builds, including sustained input
