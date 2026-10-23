@@ -105,19 +105,17 @@ internal sealed class DataTableRow : Layout
         var cell = new Grid { IsClippedToBounds = true };
         var label = CreateLabel(column);
         label.Text = column.Header;
-        label.FontAttributes = FontAttributes.Bold;
+        label.FontAttributes = FontAttributes.None;
         cell.Children.Add(label);
 
         // A wide enough target to acquire with a mouse, rather than a one-pixel-only hit region.
-        var handle = new BoxView
+        var handle = new ColumnResizeHandle
         {
             WidthRequest = 8,
             HorizontalOptions = LayoutOptions.End,
             Margin = new Thickness(0, 6),
         };
-        // A single hit-testable surface: this AppKit backend does not honor InputTransparent on
-        // a decorative child BoxView, which would otherwise swallow drags on the separator.
-        handle.SetAppThemeColor(BoxView.ColorProperty, Color.FromArgb("#D0D0D0"), Color.FromArgb("#606060"));
+        handle.SetAppThemeColor(ColumnResizeHandle.ColorProperty, Color.FromArgb("#0F000000"), Color.FromArgb("#15FFFFFF"));
         SemanticProperties.SetDescription(handle, $"Resize {column.Header} column");
 
         if (column.CanResize)

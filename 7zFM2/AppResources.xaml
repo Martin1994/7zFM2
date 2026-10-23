@@ -7,10 +7,13 @@
 
     <formats:ByteSizeConverter x:Key="ByteSize" />
 
+    <Style x:Key="SectionDivider" TargetType="BoxView">
+        <Setter Property="HeightRequest" Value="1" />
+        <Setter Property="InputTransparent" Value="True" />
+        <Setter Property="Color" Value="{AppThemeBinding Light=#0F000000, Dark=#15FFFFFF}" />
+    </Style>
+
     <ResourceDictionary.MergedDictionaries>
-        <!--
-            TODO: there is no colour palette of our own yet, so MAUI's defaults apply.
-        -->
         <ResourceDictionary Source="Styles/TextBlock.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -25,7 +25,9 @@
         </MenuBarItem>
     </ContentPage.MenuBarItems>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" RowSpacing="0">
+
+        <BoxView Grid.Row="0" Style="{StaticResource SectionDivider}" />
 
         <!--
             TODO: MAUI has no toolbar-button primitive, so these are plain Buttons. Rebuild as an
@@ -41,8 +43,10 @@
             <Button Text="Info" IsEnabled="False" />
         </HorizontalStackLayout>
 
+        <BoxView Grid.Row="2" Style="{StaticResource SectionDivider}" />
+
         <!-- Path bar -->
-        <Grid Grid.Row="2" Padding="4" ColumnDefinitions="Auto,*">
+        <Grid Grid.Row="3" Padding="4" ColumnDefinitions="Auto,*">
             <Button Grid.Column="0" Text="&#x2190;" Command="{Binding ReturnCommand}" />
                  <Entry x:Name="PathEntry"
                      Grid.Column="1"
@@ -52,11 +56,14 @@
                    Text="{Binding Name, Mode=OneWay}" />
         </Grid>
 
+        <BoxView Grid.Row="4" Style="{StaticResource SectionDivider}" />
+
         <!-- Selection mode is currently Single since the default Multiple mode doesn't fit the need
         of a file table. -->
         <dt:DataTable
             x:Name="FileList"
-            Grid.Row="3"
+            Grid.Row="5"
+            BackgroundColor="{AppThemeBinding Light=White, Dark=#191919}"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=OneWayToSource}"
             SelectionMode="Single"
@@ -147,8 +154,10 @@
             </dt:DataTable.Columns>
         </dt:DataTable>
 
-        <controls:StatusBar Grid.Row="4" Padding="20,5">
-            <Label Text="{Binding SelectionStatus}" />
+        <BoxView Grid.Row="6" Style="{StaticResource SectionDivider}" />
+
+        <controls:StatusBar Grid.Row="7" Padding="20,5">
+            <Label Text="{Binding SelectionStatus}" VerticalTextAlignment="Center" />
         </controls:StatusBar>
     </Grid>
 </ContentPage>

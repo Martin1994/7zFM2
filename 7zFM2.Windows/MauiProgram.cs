@@ -9,7 +9,13 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
 
-        builder.UseMauiApp<App>();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler<Controls.StatusBar, WindowsStatusBarHandler>();
+                handlers.AddHandler<Microsoft.Maui.Controls.Toolbar, WindowsToolbarHandler>();
+            });
 
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, WindowsDialogPresenter>();

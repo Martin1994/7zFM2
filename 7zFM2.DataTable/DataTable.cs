@@ -60,17 +60,26 @@ public partial class DataTable : ContentView
         _list.ItemTemplate = new DataTemplate(CreateRow);
 
         _header = new DataTableRow(this, isHeader: true);
-        _header.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#F0F0F0"), Color.FromArgb("#303030"));
+        var headerDivider = new BoxView { HeightRequest = 1, InputTransparent = true };
+        headerDivider.SetAppThemeColor(BoxView.ColorProperty, Color.FromArgb("#0F000000"), Color.FromArgb("#15FFFFFF"));
         _surface = new Grid
         {
             RowSpacing = 0,
             ColumnSpacing = 0,
-            RowDefinitions = { new RowDefinition(GridLength.Auto), new RowDefinition(GridLength.Star) },
+            RowDefinitions =
+            {
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Star),
+            },
             ColumnDefinitions = { new ColumnDefinition(new GridLength(0)), new ColumnDefinition(GridLength.Star) },
         };
         Grid.SetColumnSpan(_header, 2);
         _surface.Children.Add(_header);
-        Grid.SetRow(_list, 1);
+        Grid.SetRow(headerDivider, 1);
+        Grid.SetColumnSpan(headerDivider, 2);
+        _surface.Children.Add(headerDivider);
+        Grid.SetRow(_list, 2);
         _surface.Children.Add(_list);
         _horizontalScroll = new ScrollView
         {
