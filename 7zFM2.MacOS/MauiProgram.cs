@@ -50,7 +50,11 @@ public static class MauiProgram
 
         builder
             .UseMauiAppMacOS<App>()
-            .AddMacOSEssentials();
+            .AddMacOSEssentials()
+            .ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler<Controls.StatusBar, MacOSStatusBarHandler>();
+            });
 
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, MacOSDialogPresenter>();

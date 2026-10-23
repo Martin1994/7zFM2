@@ -147,8 +147,8 @@
             </dt:DataTable.Columns>
         </dt:DataTable>
 
-        <HorizontalStackLayout Grid.Row="4" Padding="20,5">
+        <controls:StatusBar Grid.Row="4" Padding="20,5">
             <Label Text="{Binding SelectionStatus}" />
-        </HorizontalStackLayout>
+        </controls:StatusBar>
     </Grid>
 </ContentPage>
