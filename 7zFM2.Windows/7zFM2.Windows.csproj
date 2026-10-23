@@ -41,6 +41,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" />
+        <PackageReference Include="System.Drawing.Common" />
     </ItemGroup>
 
     <ItemGroup>

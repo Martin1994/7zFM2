@@ -1,4 +1,5 @@
 using SevenZip.FileManager2.Formats;
+using SevenZip.FileManager2.Icons;
 
 namespace SevenZip.FileManager2.ViewModels;
 
@@ -11,8 +12,7 @@ public class SystemFileViewModel : IItemViewModel
         _info = info;
     }
 
-    // TODO(port): see IItemViewModel.Icon - not rendered yet.
-    public string Icon => "";
+    public FileIconRequest Icon => new(FileIconKind.File, Name, _info.FullName);
 
     public string Name => _info.Name;
 

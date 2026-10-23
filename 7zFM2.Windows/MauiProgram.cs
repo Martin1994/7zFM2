@@ -13,6 +13,7 @@ public static class MauiProgram
 
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, WindowsDialogPresenter>();
+        builder.Services.AddSingleton<IFileIconProvider, WindowsFileIconProvider>();
         builder.Services.AddSingleton<IPlatformWorkarounds, WindowsPlatformWorkarounds>();
 
         // TODO: Mica backdrop. MAUI has no cross-platform API for window composition, so this needs

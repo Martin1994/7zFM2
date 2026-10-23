@@ -19,11 +19,8 @@
     <PackageVersion Include="Microsoft.Maui.Platforms.Linux.Gtk4" Version="0.1.0-preview.12.26474.1" />
     <PackageVersion Include="Microsoft.Maui.Platforms.Linux.Gtk4.Essentials" Version="0.1.0-preview.12.26474.1" />
 
-    <!--
-      The Windows head needs nothing extra: MAUI 10 brings the Windows App SDK in on its own, so
-      there is no per-TFM pin to keep next to the TFM. It uses central package management like
-      every other project here.
-    -->
+    <!-- Windows-only HICON to PNG conversion; never referenced by GTK or AppKit. -->
+    <PackageVersion Include="System.Drawing.Common" Version="10.0.13" />
 
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 

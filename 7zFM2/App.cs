@@ -1,4 +1,5 @@
 using SevenZip.FileManager2.Platform;
+using SevenZip.FileManager2.Icons;
 using SevenZip.FileManager2.ViewModels;
 using SevenZip.Native;
 
@@ -27,6 +28,8 @@ public static IServiceProvider Services
     public App()
     {
         Resources.MergedDictionaries.Add(new AppResources());
+        RequestedThemeChanged += (_, _) => Dispatcher.Dispatch(
+            () => Services.GetRequiredService<FileIconCache>().Clear());
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
@@ -57,6 +60,8 @@ public static IServiceProvider Services
         UnhandledExceptions.Install();
 
         services.AddScoped(ProvideFileManager);
+        services.AddSingleton(provider => new FileIconCache(
+            provider.GetRequiredService<IFileIconProvider>(), Current.Dispatcher));
     }
 
     private static FileManagerViewModel ProvideFileManager(IServiceProvider provider)

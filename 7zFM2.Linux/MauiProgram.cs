@@ -19,6 +19,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDataTablePlatformLayout, GtkDataTablePlatformLayout>();
         builder.Services.AddSingleton<IDataTablePlatformInput, GtkDataTablePlatformInput>();
         builder.Services.AddSingleton<IDialogPresenter, GtkDialogPresenter>();
+        builder.Services.AddSingleton<IFileIconProvider, GtkFileIconProvider>();
         // Install handler mappings before the first window starts creating its page.
         builder.Services.AddSingleton<IPlatformWorkarounds>(new GtkPlatformWorkarounds());
 

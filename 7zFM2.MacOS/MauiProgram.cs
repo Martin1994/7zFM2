@@ -54,6 +54,7 @@ public static class MauiProgram
 
         App.ConfigureServices(builder.Services);
         builder.Services.AddSingleton<IDialogPresenter, MacOSDialogPresenter>();
+        builder.Services.AddSingleton<IFileIconProvider, MacOSFileIconProvider>();
         builder.Services.AddSingleton<IPlatformWorkarounds, MacOSPlatformWorkarounds>();
         builder.Services.AddSingleton<Controls.IDataTablePlatformLayout, MacOSDataTablePlatformLayout>();
 

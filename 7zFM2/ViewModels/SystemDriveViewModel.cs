@@ -1,12 +1,12 @@
 using SevenZip.FileManager2.Formats;
+using SevenZip.FileManager2.Icons;
 
 namespace SevenZip.FileManager2.ViewModels;
 
 public class SystemDriveViewModel : IItemViewModel
 {
 
-    // TODO(port): see IItemViewModel.Icon - not rendered yet.
-    public string Icon => "";
+    public FileIconRequest Icon => new(FileIconKind.Computer, Name);
 
     public string Name => Environment.MachineName;
 

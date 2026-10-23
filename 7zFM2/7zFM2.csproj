@@ -32,4 +32,10 @@
 		<ProjectReference Include="..\SevenZipSharp\SevenZipSharp.csproj" />
 		<ProjectReference Include="..\7zFM2.DataTable\7zFM2.DataTable.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Temporary for quick validation; replace with the standard MAUI asset pipeline (MauiImage). -->
+		<EmbeddedResource Include="Icons/Assets/*.png"
+		                  LogicalName="SevenZip.FileManager2.Icons.Assets.%(Filename)%(Extension)" />
+	</ItemGroup>
 </Project>
