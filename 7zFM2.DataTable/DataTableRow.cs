@@ -158,6 +158,8 @@ internal sealed class DataTableRow : Layout
         {
             FontSize = 13,
             Padding = new Thickness(8, 0, 12, 0),
+            // Center the single-line view itself: AppKit does not implement VerticalTextAlignment.
+            VerticalOptions = LayoutOptions.Center,
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalTextAlignment = column.TextAlignment,
             LineBreakMode = LineBreakMode.TailTruncation,

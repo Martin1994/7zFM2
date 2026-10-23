@@ -65,6 +65,8 @@
                 <Style x:Key="FileCellLabel" TargetType="Label">
                     <Setter Property="FontSize" Value="13" />
                     <Setter Property="Padding" Value="8,0,12,0" />
+                    <!-- AppKit ignores VerticalTextAlignment; center the single-line view as well. -->
+                    <Setter Property="VerticalOptions" Value="Center" />
                     <Setter Property="VerticalTextAlignment" Value="Center" />
                     <Setter Property="LineBreakMode" Value="TailTruncation" />
                     <Setter Property="MaxLines" Value="1" />
