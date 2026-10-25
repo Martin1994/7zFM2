@@ -23,6 +23,12 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+		<!-- Build-time tool only; do not reference or publish its assembly. -->
+		<ProjectReference Include="../build/CustomImageGenerator/CustomImageGenerator.csproj"
+		                  ReferenceOutputAssembly="false" Private="false"
+		                  OutputItemType="_CustomImageGenerator"
+		                  GlobalPropertiesToRemove="RuntimeIdentifier;RuntimeIdentifiers;SelfContained;TargetFramework;Platform;PlatformTarget;PublishAot;PublishTrimmed;PublishSingleFile;PublishReadyToRun"
+		                  AdditionalProperties="Platform=AnyCPU;SelfContained=false" />
 	</ItemGroup>
 
 	<!--
@@ -31,4 +37,6 @@
 		that backend (no SVG rasterisation), and the default Resources/Images|Fonts|Raw globs are
 		supplied by the backend package, not by MAUI.
 	-->
+	<Import Project="../build/CustomImages.items.props" />
+	<Import Project="../build/CustomImageGenerator/CustomImages.targets" />
 </Project>

@@ -29,6 +29,12 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+		<!-- Build-time tool only; do not reference or publish its assembly. -->
+		<ProjectReference Include="../build/CustomImageGenerator/CustomImageGenerator.csproj"
+		                  ReferenceOutputAssembly="false" Private="false"
+		                  OutputItemType="_CustomImageGenerator"
+		                  GlobalPropertiesToRemove="RuntimeIdentifier;RuntimeIdentifiers;SelfContained;TargetFramework;Platform;PlatformTarget;PublishAot;PublishTrimmed;PublishSingleFile;PublishReadyToRun"
+		                  AdditionalProperties="Platform=AnyCPU;SelfContained=false" />
 	</ItemGroup>
 
 	<!--
@@ -36,10 +42,13 @@
 		  * MauiIcon is handled by Microsoft.Maui.Platforms.MacOS itself (sips + iconutil -> .icns).
 		    There is no app icon yet - the repo has no artwork of its own.
 		  * MAUI's Resizetizer is inert on this head (_ResizetizerIsCompatibleApp is empty for
-		    net10.0-macos*), so MauiImage / MauiFont / MauiAsset need a hand-written
-		    BundleResource target.
+		    net10.0-macos*). CustomImages.targets bundles the generated CustomImage PNGs
+		    and their notices explicitly; other MauiImage / MauiFont / MauiAsset resources
+		    still need BundleResource mapping with this pinned backend.
 		  * Release bundles need a manual re-sign step;
 		    Hardened runtime needs both allow-jit and
 		    disable-library-validation, the latter because lib7z is supplied by the user.
 	-->
+	<Import Project="../build/CustomImages.items.props" />
+	<Import Project="../build/CustomImageGenerator/CustomImages.targets" />
 </Project>

@@ -14,6 +14,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Linux", "7zFM2.Linux\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "7zFM2.Windows", "7zFM2.Windows\7zFM2.Windows.csproj", "{7B336B3B-D77A-4568-B66B-53C2C947E27C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DEE5DD87-39C1-BF34-B639-A387DCCF972B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomImageGenerator", "build\CustomImageGenerator\CustomImageGenerator.csproj", "{33A07A61-A752-4A34-B684-178A4AF49137}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,9 +134,28 @@ Global
 		{7B336B3B-D77A-4568-B66B-53C2C947E27C}.Release|x86.ActiveCfg = Release|x86
 		{7B336B3B-D77A-4568-B66B-53C2C947E27C}.Release|x86.Build.0 = Release|x86
 		{7B336B3B-D77A-4568-B66B-53C2C947E27C}.Release|x86.Deploy.0 = Release|x86
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|arm64.Build.0 = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|x64.Build.0 = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Debug|x86.Build.0 = Debug|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|arm64.ActiveCfg = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|arm64.Build.0 = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|x64.ActiveCfg = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|x64.Build.0 = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|x86.ActiveCfg = Release|Any CPU
+		{33A07A61-A752-4A34-B684-178A4AF49137}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{33A07A61-A752-4A34-B684-178A4AF49137} = {DEE5DD87-39C1-BF34-B639-A387DCCF972B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C74CCF82-BA10-4F24-9786-EAE2C168A8E4}

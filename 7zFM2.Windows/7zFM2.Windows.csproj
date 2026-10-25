@@ -46,6 +46,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+        <!-- Build-time tool only; do not reference or publish its assembly. -->
+        <ProjectReference Include="../build/CustomImageGenerator/CustomImageGenerator.csproj"
+                          ReferenceOutputAssembly="false" Private="false"
+                          OutputItemType="_CustomImageGenerator"
+                          GlobalPropertiesToRemove="RuntimeIdentifier;RuntimeIdentifiers;SelfContained;TargetFramework;Platform;PlatformTarget;PublishAot;PublishTrimmed;PublishSingleFile;PublishReadyToRun"
+                          AdditionalProperties="Platform=AnyCPU;SelfContained=false" />
     </ItemGroup>
 
     <ItemGroup>
@@ -70,4 +76,6 @@
         <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
     </PropertyGroup>
 
+    <Import Project="../build/CustomImages.items.props" />
+    <Import Project="../build/CustomImageGenerator/CustomImages.targets" />
 </Project>

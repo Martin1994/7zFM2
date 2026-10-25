@@ -27,5 +27,10 @@
     <PackageVersion Include="CommunityToolkit.Maui" Version="15.0.1" />
 
     <PackageVersion Include="NaturalStringExtensions" Version="3.0.0" />
+
+    <!-- Build-time image conversion only; not referenced by application projects. -->
+    <PackageVersion Include="System.CommandLine" Version="2.0.13" />
+    <PackageVersion Include="Svg.Skia" Version="5.2.3" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
   </ItemGroup>
 </Project>

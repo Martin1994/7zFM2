@@ -1,0 +1,27 @@
+<Project>
+  <!--
+    Project-local CustomImage contract: SVG input, unique ResourceName,
+    and square LogicalSize in DIP. Both light/dark PNGs are generated at CustomImageScale.
+    Light preserves source colors; dark inverts HSL lightness while preserving alpha.
+    Do not rename or edit the upstream files. No application-icon artwork is included.
+  -->
+  <ItemDefinitionGroup>
+    <CustomImage>
+      <LogicalSize>24</LogicalSize>
+    </CustomImage>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_document_add_48_regular.svg" ResourceName="toolbar_add" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_folder_arrow_up_48_regular.svg" ResourceName="toolbar_extract" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_checkmark_circle_48_regular.svg" ResourceName="toolbar_test" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_document_copy_48_regular.svg" ResourceName="toolbar_copy" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_document_arrow_right_24_regular.svg" ResourceName="toolbar_move" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_delete_48_regular.svg" ResourceName="toolbar_delete" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_info_48_regular.svg" ResourceName="toolbar_info" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_arrow_up_48_regular.svg" ResourceName="address_up" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_document_48_regular.svg" ResourceName="fallback_file" LogicalSize="16" />
+    <CustomImage Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/ic_fluent_folder_48_regular.svg" ResourceName="fallback_folder" LogicalSize="16" />
+    <_CustomImageNotice Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/FluentIcons.LICENSE.txt" />
+    <_CustomImageNotice Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/FluentIcons.NOTICE.md" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,73 @@
+<Project>
+  <!-- Consumers explicitly provide CustomImage items and a build-time ProjectReference
+       with OutputItemType="_CustomImageGenerator" before importing this file. -->
+  <PropertyGroup>
+    <CustomImageScale Condition="'$(CustomImageScale)' == ''">4</CustomImageScale>
+    <_CustomImageTargetsFile>$(MSBuildThisFileFullPath)</_CustomImageTargetsFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Explicit identities also work on the first build (no glob over nonexistent files).
+         Items see the final IntermediateOutputPath, including TFM/RID where applicable.
+         GTK consumes MauiImage at evaluation time, so these cannot be created in a target. -->
+    <_CustomImagePng Include="@(CustomImage->'$(IntermediateOutputPath)custom-images/%(ResourceName)_light.png')" />
+    <_CustomImagePng Include="@(CustomImage->'$(IntermediateOutputPath)custom-images/%(ResourceName)_dark.png')" />
+    <MauiImage Include="@(_CustomImagePng)" Resize="False" Condition="'$(DesignTimeBuild)' != 'true'" />
+
+    <!-- BundleResource is handled below for AppKit; other heads publish ordinary content. -->
+    <Content Include="@(_CustomImageNotice)" Condition="'$(TargetPlatformIdentifier)' != 'macos'"
+             Link="ThirdPartyNotices/%(Filename)%(Extension)"
+             TargetPath="ThirdPartyNotices/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- WriteOnlyWhenDifferent turns effective settings/list changes into incremental inputs.
+       Keep preparation and item registration outside the skippable generation target. -->
+  <Target Name="_PrepareCustomImages" DependsOnTargets="ResolveProjectReferences"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_CustomImageDirectory>$([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)custom-images'))</_CustomImageDirectory>
+      <_CustomImageManifest>$(_CustomImageDirectory)/images.inputs</_CustomImageManifest>
+      <_CustomImageStamp>$(_CustomImageDirectory)/images.stamp</_CustomImageStamp>
+      <_CustomImageGeneratorDirectory>@(_CustomImageGenerator->'%(RootDir)%(Directory)')</_CustomImageGeneratorDirectory>
+      <_CustomImageDotNet Condition="'$(DotNetHostPath)' != ''">$(DotNetHostPath)</_CustomImageDotNet>
+      <_CustomImageDotNet Condition="'$(_CustomImageDotNet)' == ''">dotnet</_CustomImageDotNet>
+    </PropertyGroup>
+    <Error Condition="'@(_CustomImageGenerator)' == ''" Text="CustomImageGenerator was not resolved by the build graph." />
+    <ItemGroup>
+      <_CustomImageGeneratorFile Include="$(_CustomImageGeneratorDirectory)**/*" />
+      <_CustomImageManifestLine Include="$(CustomImageScale)" />
+      <_CustomImageManifestLine Include="@(CustomImage->'%(FullPath)|%(ResourceName)|%(LogicalSize)')" />
+      <FileWrites Include="@(_CustomImagePng);$(_CustomImageManifest);$(_CustomImageStamp)" />
+    </ItemGroup>
+    <MakeDir Directories="$(_CustomImageDirectory)" />
+    <WriteLinesToFile File="$(_CustomImageManifest)" Lines="@(_CustomImageManifestLine)"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8" />
+  </Target>
+
+  <Target Name="GenerateCustomImages" DependsOnTargets="_PrepareCustomImages"
+          BeforeTargets="ResizetizeCollectItems;ResizetizeImages;AssignTargetPaths;_MacOSCollectMauiResources;_CollectBundleResources"
+          Condition="'$(DesignTimeBuild)' != 'true'"
+          Inputs="@(CustomImage);$(_CustomImageManifest);$(_CustomImageTargetsFile);@(_CustomImageGeneratorFile)"
+          Outputs="@(_CustomImagePng);$(_CustomImageStamp)">
+    <Exec Command="&quot;$(_CustomImageDotNet)&quot; &quot;@(_CustomImageGenerator)&quot; &quot;$(_CustomImageManifest)&quot; &quot;$(_CustomImageDirectory)&quot;" />
+    <Touch Files="$(_CustomImageStamp)" AlwaysCreate="true" />
+  </Target>
+
+  <!-- The pinned AppKit backend lacks the newer MauiImage -> BundleResource mapping.
+       Match its Images/ layout and deduplicate if a newer mapper is also present. -->
+  <Target Name="_BundleCustomImagesForMacOS" BeforeTargets="_CollectBundleResources"
+          DependsOnTargets="GenerateCustomImages"
+          Condition="'$(TargetPlatformIdentifier)' == 'macos' and '$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <BundleResource Remove="@(_CustomImagePng);@(_CustomImageNotice)"
+                      MatchOnMetadata="FullPath" MatchOnMetadataOptions="PathLike" />
+      <BundleResource Include="@(_CustomImagePng)" LogicalName="Images/%(Filename)%(Extension)" />
+      <BundleResource Include="@(_CustomImageNotice)" LogicalName="ThirdPartyNotices/%(Filename)%(Extension)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_CleanCustomImages" AfterTargets="CoreClean">
+    <RemoveDir Directories="$(IntermediateOutputPath)custom-images" />
+  </Target>
+</Project>
