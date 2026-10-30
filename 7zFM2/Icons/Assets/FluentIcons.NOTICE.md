@@ -12,14 +12,14 @@ The ten `ic_fluent_*.svg` files in this directory are from
 - Original SVG filenames and contents are retained. No upstream build tooling is vendored.
 - This attribution applies only to these Fluent SVGs and future images derived from them,
   not to the existing `default_file.png`, `default_folder.png`, or the original application
-  icon design under `../Drafts/`.
+  icon design under `../AppIcons/`.
 
 ## Source and intended use
 
-The application resource stems below are declared once in `build/CustomImages.items.props`.
-The project-local `CustomImage` pipeline generates `<stem>_light.png` and
-`<stem>_dark.png` under each head's intermediate output directory and declares them
-as `MauiImage` resources. It rasterizes at 4x by default. Light mode preserves the
+The application resource stems below are mapped in [icons.inputs](icons.inputs).
+The manual `CustomImageGenerator` tool generates `<stem>_light.png` and
+`<stem>_dark.png` in `../Themed/`; these binaries are version-controlled and consumed
+by the heads without build-time regeneration. The manifest specifies 4x rendering. Light mode preserves the
 SVG's colors; dark mode inverts HSL lightness in encoded RGB (L' = 1 - L), preserving
 hue, saturation, and alpha. For these gray icons, `#212121` becomes `#DEDEDE`.
 The upstream SVGs are unchanged.
@@ -40,7 +40,7 @@ These resources are packaged but are not yet used by the UI.
 
 ## Distribution notices
 
-- `build/CustomImageGenerator/CustomImages.targets` includes `FluentIcons.LICENSE.txt` and this attribution
+- Each head includes `FluentIcons.LICENSE.txt` and this attribution
   under `ThirdPartyNotices/` in output/publish directories, or the AppKit bundle's
   resources. Preserve these files when assembling installers or other distributions.
 - MIT requires the copyright and permission notice to accompany copies or substantial

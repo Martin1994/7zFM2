@@ -1,22 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk"
-      TreatAsLocalProperty="TargetFramework;TargetFrameworks;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;Platform;PlatformTarget;PublishAot;PublishTrimmed;PublishSingleFile;PublishReadyToRun">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <TargetFrameworks />
-    <RuntimeIdentifier />
-    <RuntimeIdentifiers />
-    <Platform>AnyCPU</Platform>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <UseAppHost>false</UseAppHost>
     <IsPackable>false</IsPackable>
-    <!-- Host-only invariants apply during restore too, which does not consistently
-      preserve ProjectReference.GlobalPropertiesToRemove from the application graph. -->
-    <SelfContained>false</SelfContained>
-    <PublishAot>false</PublishAot>
-    <PublishTrimmed>false</PublishTrimmed>
-    <PublishSingleFile>false</PublishSingleFile>
-    <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" PrivateAssets="all" />

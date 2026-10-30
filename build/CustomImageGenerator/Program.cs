@@ -7,52 +7,69 @@ using Svg.Skia;
 namespace SevenZip.FileManager2.Build;
 
 /// <summary>
-/// Rasterizes CustomImage items, preserving source colors for light mode and inverting
-/// HSL lightness for dark mode. The UTF-8 manifest contains the scale followed by
-/// source|resource stem|logical size lines.
-/// Sources are never modified. The output directory must be dedicated to generated images.
+/// Manually generates repository image resources; application builds never invoke this tool.
+/// No arguments generate all themed PNGs and all three platform app icons.
+/// The UTF-8 themed manifest contains scale followed by source|resource stem|logical size;
+/// source paths resolve relative to the manifest. Generated binaries belong in version control.
 /// </summary>
 internal static partial class Program
 {
     private static int Main(string[] args)
     {
+        // dotnet run --project build/CustomImageGenerator
+        // dotnet run --project build/CustomImageGenerator -- images [manifest] [output-directory]
+        // dotnet run --project build/CustomImageGenerator -- app-icons gtk|macos|windows [source] [output-directory]
         var manifestArgument = new Argument<string>("manifest")
         {
-            Description = "Path to the UTF-8 CustomImage manifest.",
-            Arity = ArgumentArity.ExactlyOne
+            Description = "UTF-8 image manifest; defaults to Icons/Assets/icons.inputs.",
+            Arity = ArgumentArity.ZeroOrOne,
+            DefaultValueFactory = _ => ResourcePaths.Manifest
         };
         var outputDirectoryArgument = new Argument<string>("output-directory")
         {
-            Description = "Directory dedicated to generated PNGs; obsolete PNGs will be removed.",
-            Arity = ArgumentArity.ExactlyOne
+            Description = "Dedicated themed PNG directory; defaults to Icons/Themed. Obsolete PNGs are removed.",
+            Arity = ArgumentArity.ZeroOrOne,
+            DefaultValueFactory = _ => ResourcePaths.ThemedDirectory
         };
-        var command = new RootCommand("Generate original-color and lightness-inverted high-resolution PNGs from SVGs.")
+        var command = new RootCommand("Manually generate version-controlled image resources. Defaults to all resources.");
+        var images = new Command("images", "Generate original-color and lightness-inverted in-app PNGs.")
         {
             manifestArgument,
             outputDirectoryArgument
         };
 
-        command.SetAction(parseResult =>
+        command.SetAction(_ => Run(() =>
         {
-            try
+            Generate(ResourcePaths.Manifest, ResourcePaths.ThemedDirectory);
+            foreach (AppIconPlatform platform in Enum.GetValues<AppIconPlatform>())
             {
-                Generate(
-                    parseResult.GetRequiredValue(manifestArgument),
-                    parseResult.GetRequiredValue(outputDirectoryArgument));
-                return 0;
+                AppIconGenerator.Generate(ResourcePaths.AppIconSource, ResourcePaths.AppIconsDirectory, platform);
             }
-            catch (Exception exception)
-            {
-                Console.Error.WriteLine($"CustomImageGenerator: error: {exception.Message}");
-                return 1;
-            }
-        });
-
+        }));
+        images.SetAction(result => Run(() => Generate(
+            result.GetRequiredValue(manifestArgument), result.GetRequiredValue(outputDirectoryArgument))));
+        command.Subcommands.Add(images);
+        command.Subcommands.Add(AppIconGenerator.CreateCommand());
         return command.Parse(args).Invoke();
+    }
+
+    private static int Run(Action generate)
+    {
+        try
+        {
+            generate();
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine($"CustomImageGenerator: error: {exception.Message}");
+            return 1;
+        }
     }
 
     private static void Generate(string manifestPath, string outputDirectory)
     {
+        string manifestDirectory = Path.GetDirectoryName(Path.GetFullPath(manifestPath))!;
         string[] lines = File.ReadAllLines(manifestPath);
         if (lines.Length < 2)
         {
@@ -81,7 +98,7 @@ internal static partial class Program
                 throw new InvalidDataException($"CustomImage is larger than 4096 pixels: {fields[1]}");
             }
 
-            images.Add(new ImageInput(fields[0], fields[1], pixels));
+            images.Add(new ImageInput(Path.GetFullPath(fields[0], manifestDirectory), fields[1], pixels));
         }
 
         Directory.CreateDirectory(outputDirectory);
@@ -91,25 +108,7 @@ internal static partial class Program
             using var svg = new SKSvg();
             SKPicture picture = svg.Load(image.Source)
                 ?? throw new InvalidDataException($"Cannot load SVG: {image.Source}");
-            SKRect bounds = picture.CullRect;
-            if (bounds.Width <= 0 || bounds.Height <= 0)
-            {
-                throw new InvalidDataException($"SVG has empty bounds: {image.Source}");
-            }
-
-            // Render at the final pixel size, preserving aspect ratio and transparent padding.
-            var info = new SKImageInfo(image.Pixels, image.Pixels, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info)
-                ?? throw new InvalidOperationException("Cannot allocate image surface.");
-            surface.Canvas.Clear(SKColors.Transparent);
-            float factor = Math.Min(image.Pixels / bounds.Width, image.Pixels / bounds.Height);
-            surface.Canvas.Translate(
-                (image.Pixels - bounds.Width * factor) / 2,
-                (image.Pixels - bounds.Height * factor) / 2);
-            surface.Canvas.Scale(factor);
-            surface.Canvas.Translate(-bounds.Left, -bounds.Top);
-            surface.Canvas.DrawPicture(picture);
-            using SKImage light = surface.Snapshot();
+            using SKImage light = SvgRasterizer.Render(picture, image.Pixels);
             using SKImage dark = InvertLightness(light);
             outputs.Add(WritePng(light, outputDirectory, image.ResourceName, "light"));
             outputs.Add(WritePng(dark, outputDirectory, image.ResourceName, "dark"));
@@ -163,25 +162,8 @@ internal static partial class Program
 
     private static string WritePng(SKImage image, string outputDirectory, string resourceName, string theme)
     {
-        using SKData png = image.Encode(SKEncodedImageFormat.Png, 100)
-            ?? throw new InvalidOperationException("Cannot encode PNG.");
         string filename = $"{resourceName}_{theme}.png";
-        string output = Path.Combine(outputDirectory, filename);
-        string temporary = output + ".tmp";
-        try
-        {
-            using (FileStream stream = File.Create(temporary))
-            {
-                png.SaveTo(stream);
-            }
-
-            File.Move(temporary, output, overwrite: true);
-        }
-        finally
-        {
-            File.Delete(temporary);
-        }
-
+        PngWriter.Write(image, Path.Combine(outputDirectory, filename));
         return filename;
     }
 

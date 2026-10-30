@@ -1,0 +1,12 @@
+<Project>
+    <!-- Static, version-controlled resources. Regenerate with the CustomImageGenerator console tool.
+         Source mappings live in Icons/Assets/icons.inputs, not in the application build. -->
+    <PropertyGroup>
+        <AppIconsDirectory>$(MSBuildThisFileDirectory)../7zFM2/Icons/AppIcons/</AppIconsDirectory>
+    </PropertyGroup>
+    <ItemGroup>
+        <CustomImagePng Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Themed/*.png" />
+        <CustomImageNotice Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/FluentIcons.LICENSE.txt" />
+        <CustomImageNotice Include="$(MSBuildThisFileDirectory)../7zFM2/Icons/Assets/FluentIcons.NOTICE.md" />
+    </ItemGroup>
+</Project>

@@ -1,54 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<!--
-			Platform version 27 selects the Microsoft.macOS.Sdk.net10.0_27.0 pack, which matches the
-			installed Xcode 27. The versionless net10.0-macos TFM resolves to the 26.5 SDK pack whose
-			_ValidateXcodeVersion target rejects Xcode 27.
-		-->
-		<TargetFramework>net10.0-macos27</TargetFramework>
-		<OutputType>Exe</OutputType>
-		<UseMaui>true</UseMaui>
-		<SingleProject>true</SingleProject>
-		<RootNamespace>SevenZip.FileManager2.MacOS</RootNamespace>
+    <PropertyGroup>
+        <!--
+            Platform version 27 selects the Microsoft.macOS.Sdk.net10.0_27.0 pack, which matches the
+            installed Xcode 27. The versionless net10.0-macos TFM resolves to the 26.5 SDK pack whose
+            _ValidateXcodeVersion target rejects Xcode 27.
+        -->
+        <TargetFramework>net10.0-macos27</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <RootNamespace>SevenZip.FileManager2.MacOS</RootNamespace>
 
-		<ApplicationTitle>7zFM2</ApplicationTitle>
-		<ApplicationId>SevenZip.FileManager2</ApplicationId>
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
-	</PropertyGroup>
+        <ApplicationTitle>7zFM2</ApplicationTitle>
+        <ApplicationId>SevenZip.FileManager2</ApplicationId>
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" />
-		<!--
-			MAUI Labs AppKit backend - a native NSWindow/NSButton/NSScrollView backend, NOT
-			Mac Catalyst. Pre-release and not covered by the MAUI support policy.
-		-->
-		<PackageReference Include="Microsoft.Maui.Platforms.MacOS" />
-		<PackageReference Include="Microsoft.Maui.Platforms.MacOS.Essentials" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Maui.Controls" />
+        <!--
+            MAUI Labs AppKit backend - a native NSWindow/NSButton/NSScrollView backend, NOT
+            Mac Catalyst. Pre-release and not covered by the MAUI support policy.
+        -->
+        <PackageReference Include="Microsoft.Maui.Platforms.MacOS" />
+        <PackageReference Include="Microsoft.Maui.Platforms.MacOS.Essentials" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\7zFM2\7zFM2.csproj" />
-		<!-- Build-time tool only; do not reference or publish its assembly. -->
-		<ProjectReference Include="../build/CustomImageGenerator/CustomImageGenerator.csproj"
-		                  ReferenceOutputAssembly="false" Private="false"
-		                  OutputItemType="_CustomImageGenerator"
-		                  GlobalPropertiesToRemove="RuntimeIdentifier;RuntimeIdentifiers;SelfContained;TargetFramework;Platform;PlatformTarget;PublishAot;PublishTrimmed;PublishSingleFile;PublishReadyToRun"
-		                  AdditionalProperties="Platform=AnyCPU;SelfContained=false" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\7zFM2\7zFM2.csproj" />
+    </ItemGroup>
 
-	<!--
-		TODO(port): app icon, entitlements and the Release re-signing step.
-		  * MauiIcon is handled by Microsoft.Maui.Platforms.MacOS itself (sips + iconutil -> .icns).
-		    There is no app icon yet - the repo has no artwork of its own.
-		  * MAUI's Resizetizer is inert on this head (_ResizetizerIsCompatibleApp is empty for
-		    net10.0-macos*). CustomImages.targets bundles the generated CustomImage PNGs
-		    and their notices explicitly; other MauiImage / MauiFont / MauiAsset resources
-		    still need BundleResource mapping with this pinned backend.
-		  * Release bundles need a manual re-sign step;
-		    Hardened runtime needs both allow-jit and
-		    disable-library-validation, the latter because lib7z is supplied by the user.
-	-->
-	<Import Project="../build/CustomImages.items.props" />
-	<Import Project="../build/CustomImageGenerator/CustomImages.targets" />
+    <!-- TODO(port): entitlements and Release re-signing. Hardened runtime needs allow-jit
+         and disable-library-validation, the latter because lib7z is supplied by the user. -->
+    <Import Project="../build/AppIcons.items.props" />
+
+    <ItemGroup>
+        <!-- The AppKit backend converts this 1024px PNG to ICNS with sips/iconutil. -->
+        <MauiIcon Include="$(AppIconsDirectory)appicon-macos.png" />
+        <!-- Explicit AppKit resource mapping; no MauiImage registration to duplicate it. -->
+        <BundleResource Include="@(CustomImagePng)" LogicalName="Images/%(Filename)%(Extension)" />
+        <BundleResource Include="@(CustomImageNotice)" LogicalName="ThirdPartyNotices/%(Filename)%(Extension)" />
+    </ItemGroup>
 </Project>
