@@ -8,6 +8,14 @@
     xmlns:dt="clr-namespace:SevenZip.FileManager2.Controls;assembly=7zFM2.DataTable"
     x:DataType="vm:FileManagerViewModel">
 
+    <ContentPage.Resources>
+        <Style x:Key="ToolbarActionButton" TargetType="controls:ActionButton">
+            <Setter Property="WidthRequest" Value="64" />
+            <Setter Property="HeightRequest" Value="64" />
+            <Setter Property="ShowText" Value="True" />
+        </Style>
+    </ContentPage.Resources>
+
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <!--
@@ -29,27 +37,32 @@
 
         <BoxView Grid.Row="0" Style="{StaticResource SectionDivider}" />
 
-        <!--
-            TODO: MAUI has no toolbar-button primitive, so these are plain Buttons. Rebuild as an
-            icon toolbar (FontImageSource) with tooltips.
-        -->
         <HorizontalStackLayout Grid.Row="1" Padding="4" Spacing="4">
-            <Button Text="Add" IsEnabled="False" />
-            <Button Text="Extract" IsEnabled="False" />
-            <Button Text="Test" Command="{Binding TestCommand}" />
-            <Button Text="Copy" IsEnabled="False" />
-            <Button Text="Move" IsEnabled="False" />
-            <Button Text="Delete" IsEnabled="False" />
-            <Button Text="Info" IsEnabled="False" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Add" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_add_light.png, Dark=toolbar_add_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Extract" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_extract_light.png, Dark=toolbar_extract_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Test" Command="{Binding TestCommand}"
+                                   Source="{AppThemeBinding Light=toolbar_test_light.png, Dark=toolbar_test_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Copy" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_copy_light.png, Dark=toolbar_copy_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Move" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_move_light.png, Dark=toolbar_move_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Delete" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_delete_light.png, Dark=toolbar_delete_dark.png}" />
+            <controls:ActionButton Style="{StaticResource ToolbarActionButton}" Text="Info" IsEnabled="False"
+                                   Source="{AppThemeBinding Light=toolbar_info_light.png, Dark=toolbar_info_dark.png}" />
         </HorizontalStackLayout>
 
         <BoxView Grid.Row="2" Style="{StaticResource SectionDivider}" />
 
         <!-- Path bar -->
         <Grid Grid.Row="3" Padding="4" ColumnDefinitions="Auto,*">
-            <Button Grid.Column="0" Text="&#x2190;" Command="{Binding ReturnCommand}" />
-                 <Entry x:Name="PathEntry"
-                     Grid.Column="1"
+            <controls:ActionButton Grid.Column="0" Text="Up one level" Command="{Binding ReturnCommand}"
+                                   WidthRequest="36" HeightRequest="36"
+                                   Source="{AppThemeBinding Light=address_up_light.png, Dark=address_up_dark.png}" />
+            <Entry x:Name="PathEntry"
+                   Grid.Column="1"
                    Margin="4,0"
                    FontSize="13"
                    IsReadOnly="True"

@@ -17,7 +17,7 @@
 		-->
 		<NoWarn>$(NoWarn);CA1416;NU1507;XCODE_27_0_PREVIEW</NoWarn>
 
-		<DefaultLanguage>en</DefaultLanguage>
+		<DefaultLanguage>en-US</DefaultLanguage>
 	</PropertyGroup>
 
 	<!--
